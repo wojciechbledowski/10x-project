@@ -1,0 +1,67 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+
+const { deckId } = Astro.params;
+---
+
+<Layout title="Deck Settings - Flashcard App" pageTitle="Spanish Vocabulary">
+  <div class="container mx-auto max-w-7xl p-4 sm:p-6">
+    <!-- Deck Tabs -->
+    <div class="mb-6 border-b border-border">
+      <nav class="-mb-px flex gap-8" aria-label="Deck sections">
+        <a
+          href={`/decks/${deckId}`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Flashcards
+        </a>
+        <a
+          href={`/decks/${deckId}/stats`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Stats
+        </a>
+        <a
+          href={`/decks/${deckId}/settings`}
+          class="border-b-2 border-primary px-1 py-4 text-sm font-medium text-primary"
+          aria-current="page"
+        >
+          Settings
+        </a>
+      </nav>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="max-w-2xl space-y-6">
+      <!-- Rename Deck -->
+      <div class="rounded-lg border border-border bg-card p-6">
+        <h3 class="mb-4 text-lg font-semibold text-card-foreground">Deck Name</h3>
+        <div class="flex gap-3">
+          <input
+            type="text"
+            value="Spanish Vocabulary"
+            class="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          />
+          <button
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="rounded-lg border border-destructive bg-card p-6">
+        <h3 class="mb-2 text-lg font-semibold text-destructive">Danger Zone</h3>
+        <p class="mb-4 text-sm text-muted-foreground">
+          Deleting a deck is permanent and cannot be undone. All flashcards in this deck will be deleted.
+        </p>
+        <button
+          class="rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground"
+        >
+          Delete Deck
+        </button>
+      </div>
+    </div>
+  </div>
+</Layout>

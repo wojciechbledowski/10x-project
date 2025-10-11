@@ -1,0 +1,69 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+
+const { deckId } = Astro.params;
+---
+
+<Layout title="Deck Stats - Flashcard App" pageTitle="Spanish Vocabulary">
+  <div class="container mx-auto max-w-7xl p-4 sm:p-6">
+    <!-- Deck Tabs -->
+    <div class="mb-6 border-b border-border">
+      <nav class="-mb-px flex gap-8" aria-label="Deck sections">
+        <a
+          href={`/decks/${deckId}`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Flashcards
+        </a>
+        <a
+          href={`/decks/${deckId}/stats`}
+          class="border-b-2 border-primary px-1 py-4 text-sm font-medium text-primary"
+          aria-current="page"
+        >
+          Stats
+        </a>
+        <a
+          href={`/decks/${deckId}/settings`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Settings
+        </a>
+      </nav>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- Total Cards -->
+      <div class="rounded-lg border border-border bg-card p-6">
+        <p class="text-sm font-medium text-muted-foreground">Total Cards</p>
+        <p class="mt-2 text-3xl font-bold text-foreground">45</p>
+      </div>
+
+      <!-- Cards Due -->
+      <div class="rounded-lg border border-border bg-card p-6">
+        <p class="text-sm font-medium text-muted-foreground">Due Today</p>
+        <p class="mt-2 text-3xl font-bold text-destructive">12</p>
+      </div>
+
+      <!-- Average Ease -->
+      <div class="rounded-lg border border-border bg-card p-6">
+        <p class="text-sm font-medium text-muted-foreground">Avg. Ease Factor</p>
+        <p class="mt-2 text-3xl font-bold text-foreground">2.5</p>
+      </div>
+
+      <!-- Retention Rate -->
+      <div class="rounded-lg border border-border bg-card p-6">
+        <p class="text-sm font-medium text-muted-foreground">Retention Rate</p>
+        <p class="mt-2 text-3xl font-bold text-primary">87%</p>
+      </div>
+    </div>
+
+    <!-- Chart Placeholder -->
+    <div class="mt-6 rounded-lg border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold text-card-foreground">Review History</h3>
+      <div class="flex h-64 items-center justify-center text-muted-foreground">
+        <p>Chart will be implemented here</p>
+      </div>
+    </div>
+  </div>
+</Layout>

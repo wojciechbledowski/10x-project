@@ -1,8 +1,10 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
----
+// Root page - redirects to /login or /decks based on auth
+const user = Astro.locals.user;
 
-<Layout>
-  <Welcome />
-</Layout>
+if (user) {
+  return Astro.redirect("/decks");
+} else {
+  return Astro.redirect("/login");
+}
+---

@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { ErrorContent } from "../components/ErrorContent";
+import { getLanguageFromCookie, createTranslator } from "../lib/i18n/utils";
+
+// Get current language
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+
+// Get error message from query parameter
+const url = new URL(Astro.request.url);
+const message = url.searchParams.get("message") || undefined;
+---
+
+<Layout title={t("error.unexpectedError")} showNavigation={false}>
+  <meta name="robots" content="noindex, nofollow" slot="head" />
+  <ErrorContent message={message} lang={lang} client:load />
+</Layout>

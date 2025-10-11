@@ -1,0 +1,79 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Terms of Service - Flashcard App" showNavigation={false}>
+  <div class="min-h-screen bg-background py-12">
+    <div class="container mx-auto max-w-4xl px-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <a href="/login" class="mb-4 inline-block text-sm text-primary hover:underline"> ← Back to Login </a>
+        <h1 class="text-4xl font-bold text-foreground">Terms of Service</h1>
+        <p class="mt-2 text-sm text-muted-foreground">Last updated: October 11, 2025</p>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-neutral max-w-none dark:prose-invert">
+        <div class="rounded-lg border border-border bg-card p-8">
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Acceptance of Terms</h2>
+          <p class="mb-6 text-muted-foreground">
+            By accessing and using this flashcard application, you accept and agree to be bound by the terms and
+            provisions of this agreement.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Use License</h2>
+          <p class="mb-4 text-muted-foreground">We grant you a limited, non-exclusive, non-transferable license to:</p>
+          <ul class="mb-6 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Create and manage flashcard decks</li>
+            <li>Use AI-powered flashcard generation features</li>
+            <li>Study and review your flashcards</li>
+            <li>Access your data across devices</li>
+          </ul>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">User Responsibilities</h2>
+          <p class="mb-4 text-muted-foreground">You agree to:</p>
+          <ul class="mb-6 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Provide accurate account information</li>
+            <li>Maintain the security of your account</li>
+            <li>Not share your account credentials</li>
+            <li>Use the service in compliance with applicable laws</li>
+            <li>Not abuse or misuse the AI generation features</li>
+          </ul>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Content Ownership</h2>
+          <p class="mb-6 text-muted-foreground">
+            You retain all rights to the flashcard content you create. We do not claim ownership of your study
+            materials.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Service Availability</h2>
+          <p class="mb-6 text-muted-foreground">
+            We strive to maintain 99.9% uptime but cannot guarantee uninterrupted service. Maintenance windows will be
+            communicated in advance when possible.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Account Termination</h2>
+          <p class="mb-6 text-muted-foreground">
+            We reserve the right to terminate accounts that violate these terms or engage in abusive behavior.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Limitation of Liability</h2>
+          <p class="mb-6 text-muted-foreground">
+            The service is provided "as is" without warranties. We are not liable for any indirect, incidental, or
+            consequential damages.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Changes to Terms</h2>
+          <p class="mb-6 text-muted-foreground">
+            We may update these terms at any time. Continued use of the service constitutes acceptance of updated terms.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Contact Us</h2>
+          <p class="text-muted-foreground">
+            If you have questions about these Terms, please contact us at legal@flashcardapp.com
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,11 +1,29 @@
 ---
 import "../styles/global.css";
+import { Header } from "../components/navigation/Header";
+import { MobileNav } from "../components/navigation/MobileNav";
+import { DesktopNav } from "../components/navigation/DesktopNav";
+import { ToasterProvider } from "../components/ToasterProvider";
+import { getLanguageFromCookie } from "../lib/i18n/utils";
 
 interface Props {
   title?: string;
+  pageTitle?: string;
+  userName?: string;
+  showNavigation?: boolean; // Allow hiding navigation for public pages
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { title = "Flashcard App", pageTitle = "Flashcards", userName, showNavigation = true } = Astro.props;
+
+// Get current path for active nav state
+const currentPath = Astro.url.pathname;
+
+// Get user from locals (set by auth middleware)
+const user = Astro.locals.user;
+const displayName = userName || user?.name || "User";
+
+// Get current language from cookie
+const currentLang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
 ---
 
 <!doctype html>
@@ -16,9 +34,36 @@ const { title = "10x Astro Starter" } = Astro.props;
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <slot name="head" />
   </head>
-  <body>
-    <slot />
+  <body class="min-h-screen bg-background">
+    {
+      showNavigation ? (
+        <div class="flex h-screen overflow-hidden">
+          {/* Desktop Side Navigation */}
+          <DesktopNav currentPath={currentPath} lang={currentLang} client:load />
+
+          {/* Main Content Area */}
+          <div class="flex flex-1 flex-col overflow-hidden">
+            {/* Header */}
+            <Header title={pageTitle} userName={displayName} lang={currentLang} client:load />
+
+            {/* Page Content */}
+            <main class="flex-1 overflow-y-auto pb-20 sm:pb-0">
+              <slot />
+            </main>
+          </div>
+        </div>
+      ) : (
+        <slot />
+      )
+    }
+
+    {/* Mobile Bottom Navigation (only if showNavigation is true) */}
+    {showNavigation && <MobileNav currentPath={currentPath} lang={currentLang} client:load />}
+
+    {/* Toast Provider */}
+    <ToasterProvider client:only="react" />
   </body>
 </html>
 

@@ -1,0 +1,64 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getLanguageFromCookie, createTranslator } from "../lib/i18n/utils";
+
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+---
+
+<Layout title={`${t("review.title")} - ${t("common.appName")}`} pageTitle={t("review.title")}>
+  <div class="flex h-full items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+      <!-- Progress Bar -->
+      <div class="mb-6">
+        <div class="mb-2 flex items-center justify-between text-sm text-muted-foreground">
+          <span>{t("review.progress")}</span>
+          <span>3 / 12</span>
+        </div>
+        <div class="h-2 w-full overflow-hidden rounded-full bg-secondary">
+          <div class="h-full w-1/4 bg-primary transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Flashcard -->
+      <div class="mb-6 rounded-lg border border-border bg-card p-12 text-center shadow-lg">
+        <p class="text-2xl font-medium text-card-foreground">¿Cómo estás?</p>
+        <button class="mt-8 text-sm text-muted-foreground hover:text-foreground">{t("review.reveal")}</button>
+      </div>
+
+      <!-- Quality Buttons (would appear after revealing) -->
+      <div class="grid grid-cols-5 gap-2">
+        <button class="rounded-lg border border-border bg-background px-3 py-2 text-sm hover:bg-accent">
+          <div class="font-semibold">1</div>
+          <div class="text-xs text-muted-foreground">{t("review.rating.again")}</div>
+        </button>
+        <button class="rounded-lg border border-border bg-background px-3 py-2 text-sm hover:bg-accent">
+          <div class="font-semibold">2</div>
+          <div class="text-xs text-muted-foreground">{t("review.rating.hard")}</div>
+        </button>
+        <button class="rounded-lg border border-border bg-background px-3 py-2 text-sm hover:bg-accent">
+          <div class="font-semibold">3</div>
+          <div class="text-xs text-muted-foreground">{t("review.rating.good")}</div>
+        </button>
+        <button class="rounded-lg border border-border bg-background px-3 py-2 text-sm hover:bg-accent">
+          <div class="font-semibold">4</div>
+          <div class="text-xs text-muted-foreground">{t("review.rating.easy")}</div>
+        </button>
+        <button class="rounded-lg border border-border bg-background px-3 py-2 text-sm hover:bg-accent">
+          <div class="font-semibold">5</div>
+          <div class="text-xs text-muted-foreground">{t("review.rating.perfect")}</div>
+        </button>
+      </div>
+
+      <!-- Keyboard Hints -->
+      <p class="mt-4 text-center text-xs text-muted-foreground">
+        {
+          t("review.keyboardHints", {
+            space: '<kbd class="rounded bg-muted px-2 py-1">Space</kbd>',
+            keys: '<kbd class="rounded bg-muted px-2 py-1">1-5</kbd>',
+          })
+        }
+      </p>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Privacy Policy - Flashcard App" showNavigation={false}>
+  <div class="min-h-screen bg-background py-12">
+    <div class="container mx-auto max-w-4xl px-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <a href="/login" class="mb-4 inline-block text-sm text-primary hover:underline"> ← Back to Login </a>
+        <h1 class="text-4xl font-bold text-foreground">Privacy Policy</h1>
+        <p class="mt-2 text-sm text-muted-foreground">Last updated: October 11, 2025</p>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-neutral max-w-none dark:prose-invert">
+        <div class="rounded-lg border border-border bg-card p-8">
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Introduction</h2>
+          <p class="mb-6 text-muted-foreground">
+            This Privacy Policy describes how we collect, use, and protect your personal information when you use our
+            flashcard application.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Information We Collect</h2>
+          <p class="mb-4 text-muted-foreground">We collect the following types of information:</p>
+          <ul class="mb-6 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Account information (email, name)</li>
+            <li>Flashcard data and study progress</li>
+            <li>Usage statistics and analytics</li>
+            <li>Device and browser information</li>
+          </ul>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">How We Use Your Information</h2>
+          <p class="mb-4 text-muted-foreground">Your information is used to:</p>
+          <ul class="mb-6 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Provide and improve our services</li>
+            <li>Generate AI-powered flashcards</li>
+            <li>Track your learning progress</li>
+            <li>Send important account notifications</li>
+          </ul>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Data Security</h2>
+          <p class="mb-6 text-muted-foreground">
+            We implement industry-standard security measures to protect your data. All data is encrypted in transit and
+            at rest.
+          </p>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Your Rights</h2>
+          <p class="mb-4 text-muted-foreground">You have the right to:</p>
+          <ul class="mb-6 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Access your personal data</li>
+            <li>Request data deletion</li>
+            <li>Export your flashcards</li>
+            <li>Opt-out of analytics</li>
+          </ul>
+
+          <h2 class="mb-4 text-2xl font-semibold text-foreground">Contact Us</h2>
+          <p class="text-muted-foreground">
+            If you have questions about this Privacy Policy, please contact us at privacy@flashcardapp.com
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

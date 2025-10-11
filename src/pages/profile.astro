@@ -1,0 +1,107 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getLanguageFromCookie, createTranslator } from "../lib/i18n/utils";
+
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+---
+
+<Layout title={`${t("profile.title")} - ${t("common.appName")}`} pageTitle={t("profile.title")}>
+  <div class="container mx-auto max-w-4xl p-4 sm:p-6">
+    <!-- Account Section -->
+    <div class="mb-6 rounded-lg border border-border bg-card p-6">
+      <h2 class="mb-4 text-xl font-semibold text-card-foreground">{t("profile.accountInfo")}</h2>
+
+      <div class="space-y-4">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-foreground">{t("auth.email")}</label>
+          <input
+            type="email"
+            value="user@example.com"
+            disabled
+            class="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.displayName")}</label>
+          <div class="flex gap-3">
+            <input
+              type="text"
+              value="John Doe"
+              class="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+            />
+            <button
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              {t("common.save")}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Section -->
+    <div class="mb-6 rounded-lg border border-border bg-card p-6">
+      <h2 class="mb-4 text-xl font-semibold text-card-foreground">{t("profile.changePassword")}</h2>
+
+      <div class="space-y-4">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.currentPassword")}</label>
+          <input
+            type="password"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.newPassword")}</label>
+          <input
+            type="password"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.confirmNewPassword")}</label>
+          <input
+            type="password"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+
+        <button class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          {t("profile.updatePassword")}
+        </button>
+      </div>
+    </div>
+
+    <!-- Preferences Section -->
+    <div class="mb-6 rounded-lg border border-border bg-card p-6">
+      <h2 class="mb-4 text-xl font-semibold text-card-foreground">{t("profile.preferences")}</h2>
+
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-foreground">{t("profile.theme")}</p>
+          <p class="text-sm text-muted-foreground">{t("profile.themeDescription")}</p>
+        </div>
+        <button class="rounded-lg border border-border bg-background px-4 py-2 text-sm hover:bg-accent">
+          {t("common.save")}
+        </button>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="rounded-lg border border-destructive bg-card p-6">
+      <h2 class="mb-2 text-xl font-semibold text-destructive">{t("profile.deleteAccount")}</h2>
+      <p class="mb-4 text-sm text-muted-foreground">
+        {t("profile.deleteAccountWarning")}
+      </p>
+      <button
+        class="rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground"
+      >
+        {t("profile.deleteAccount")}
+      </button>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,122 @@
+{
+  "common": {
+    "appName": "Aplikacja Fiszek",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "close": "Zamknij",
+    "back": "Wstecz",
+    "switchTo": "Przełącz na",
+    "lightMode": "tryb jasny",
+    "darkMode": "tryb ciemny",
+    "language_switcher_label": "Zmień język",
+    "language_en": "Angielski",
+    "language_pl": "Polski"
+  },
+  "nav": {
+    "decks": "Talie",
+    "review": "Powtórka",
+    "profile": "Profil"
+  },
+  "auth": {
+    "login": "Zaloguj się",
+    "signup": "Zarejestruj się",
+    "logout": "Wyloguj",
+    "email": "Email",
+    "password": "Hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "fullName": "Imię i nazwisko",
+    "welcomeBack": "Witaj ponownie",
+    "createAccount": "Utwórz konto",
+    "signInPrompt": "Zaloguj się do swojego konta, aby kontynuować naukę",
+    "signUpPrompt": "Zacznij naukę z fiszkami wspieranymi przez AI",
+    "alreadyHaveAccount": "Masz już konto?",
+    "dontHaveAccount": "Nie masz konta?",
+    "passwordRequirement": "Musi mieć co najmniej 8 znaków"
+  },
+  "decks": {
+    "title": "Moje Talie",
+    "subtitle": "Zarządzaj swoimi kolekcjami fiszek",
+    "createDeck": "Utwórz talię",
+    "noDeck": "Brak talii",
+    "createFirstDeck": "Utwórz swoją pierwszą talię, aby rozpocząć naukę",
+    "cardsCount": "{{count}} fiszek",
+    "cardsDue": "{{count}} do powtórki",
+    "allReviewed": "Wszystkie powtórzone"
+  },
+  "flashcards": {
+    "title": "Fiszki",
+    "addCard": "Dodaj fiszkę",
+    "generateFlashcards": "Generuj fiszki",
+    "front": "Przód",
+    "back": "Tył",
+    "source": {
+      "manual": "ręczne",
+      "ai": "ai",
+      "ai_edited": "ai_edytowane"
+    }
+  },
+  "review": {
+    "title": "Powtórka",
+    "progress": "Postęp",
+    "reveal": "Kliknij, aby odkryć",
+    "rating": {
+      "again": "Powtórz",
+      "hard": "Trudne",
+      "good": "Dobrze",
+      "easy": "Łatwe",
+      "perfect": "Perfekcyjnie"
+    },
+    "keyboardHints": "Naciśnij {{space}}, aby odkryć • Naciśnij {{keys}}, aby ocenić"
+  },
+  "profile": {
+    "title": "Profil",
+    "accountInfo": "Informacje o koncie",
+    "changePassword": "Zmień hasło",
+    "currentPassword": "Obecne hasło",
+    "newPassword": "Nowe hasło",
+    "confirmNewPassword": "Potwierdź nowe hasło",
+    "updatePassword": "Zaktualizuj hasło",
+    "preferences": "Preferencje",
+    "theme": "Motyw",
+    "themeDescription": "Przełącz między jasnym i ciemnym trybem",
+    "deleteAccount": "Usuń konto",
+    "deleteAccountWarning": "Trwale usuń swoje konto i wszystkie powiązane dane. Ta akcja nie może być cofnięta.",
+    "displayName": "Nazwa wyświetlana"
+  },
+  "stats": {
+    "title": "Statystyki",
+    "totalCards": "Wszystkie fiszki",
+    "dueToday": "Do powtórki dziś",
+    "avgEaseFactor": "Śr. współczynnik łatwości",
+    "retentionRate": "Wskaźnik zapamiętywania",
+    "reviewHistory": "Historia powtórek",
+    "chartPlaceholder": "Wykres zostanie tutaj zaimplementowany"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "deckName": "Nazwa talii",
+    "dangerZone": "Strefa niebezpieczna",
+    "deleteDeck": "Usuń talię",
+    "deleteDeckWarning": "Usunięcie talii jest trwałe i nie może być cofnięte. Wszystkie fiszki w tej talii zostaną usunięte."
+  },
+  "legal": {
+    "privacy": "Polityka prywatności",
+    "terms": "Regulamin",
+    "backToLogin": "Powrót do logowania"
+  },
+  "error": {
+    "unexpectedError": "Nieoczekiwany błąd",
+    "somethingWentWrong": "Coś poszło nie tak.",
+    "retry": "Spróbuj ponownie",
+    "home": "Strona główna",
+    "redirecting": "Wystąpił błąd. Przekierowywanie...",
+    "retryPageTitle": "Spróbuj ponownie załadować stronę, która spowodowała błąd",
+    "cannotRetryOffline": "Nie można spróbować ponownie offline",
+    "offline": "Offline"
+  }
+}

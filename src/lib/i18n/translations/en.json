@@ -1,0 +1,122 @@
+{
+  "common": {
+    "appName": "Flashcard App",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "switchTo": "Switch to",
+    "lightMode": "light mode",
+    "darkMode": "dark mode",
+    "language_switcher_label": "Change language",
+    "language_en": "English",
+    "language_pl": "Polish"
+  },
+  "nav": {
+    "decks": "Decks",
+    "review": "Review",
+    "profile": "Profile"
+  },
+  "auth": {
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "welcomeBack": "Welcome Back",
+    "createAccount": "Create Account",
+    "signInPrompt": "Sign in to your account to continue learning",
+    "signUpPrompt": "Start learning with AI-powered flashcards",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "passwordRequirement": "Must be at least 8 characters"
+  },
+  "decks": {
+    "title": "My Decks",
+    "subtitle": "Manage your flashcard collections",
+    "createDeck": "Create Deck",
+    "noDeck": "No decks yet",
+    "createFirstDeck": "Create your first deck to start learning",
+    "cardsCount": "{{count}} cards",
+    "cardsDue": "{{count}} due",
+    "allReviewed": "All reviewed"
+  },
+  "flashcards": {
+    "title": "Flashcards",
+    "addCard": "Add Card",
+    "generateFlashcards": "Generate Flashcards",
+    "front": "Front",
+    "back": "Back",
+    "source": {
+      "manual": "manual",
+      "ai": "ai",
+      "ai_edited": "ai_edited"
+    }
+  },
+  "review": {
+    "title": "Review",
+    "progress": "Progress",
+    "reveal": "Click to reveal",
+    "rating": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy",
+      "perfect": "Perfect"
+    },
+    "keyboardHints": "Press {{space}} to reveal • Press {{keys}} to rate"
+  },
+  "profile": {
+    "title": "Profile",
+    "accountInfo": "Account Information",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "preferences": "Preferences",
+    "theme": "Theme",
+    "themeDescription": "Toggle between light and dark mode",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "displayName": "Display Name"
+  },
+  "stats": {
+    "title": "Stats",
+    "totalCards": "Total Cards",
+    "dueToday": "Due Today",
+    "avgEaseFactor": "Avg. Ease Factor",
+    "retentionRate": "Retention Rate",
+    "reviewHistory": "Review History",
+    "chartPlaceholder": "Chart will be implemented here"
+  },
+  "settings": {
+    "title": "Settings",
+    "deckName": "Deck Name",
+    "dangerZone": "Danger Zone",
+    "deleteDeck": "Delete Deck",
+    "deleteDeckWarning": "Deleting a deck is permanent and cannot be undone. All flashcards in this deck will be deleted."
+  },
+  "legal": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "backToLogin": "Back to Login"
+  },
+  "error": {
+    "unexpectedError": "Unexpected Error",
+    "somethingWentWrong": "Something went wrong.",
+    "retry": "Retry",
+    "home": "Home",
+    "redirecting": "An error occurred. Redirecting...",
+    "retryPageTitle": "Retry the page that caused the error",
+    "cannotRetryOffline": "Cannot retry while offline",
+    "offline": "Offline"
+  }
+}

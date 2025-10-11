@@ -1,0 +1,15 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { TestErrorBoundary } from "../components/TestErrorBoundary";
+
+// This page is for testing the ErrorBoundary
+// Remove in production or hide behind a feature flag
+---
+
+<Layout title="Error Boundary Test">
+  <div class="container mx-auto flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <TestErrorBoundary client:load />
+    </div>
+  </div>
+</Layout>

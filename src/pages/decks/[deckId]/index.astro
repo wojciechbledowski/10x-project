@@ -1,0 +1,95 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+
+const { deckId } = Astro.params;
+---
+
+<Layout title="Deck Detail - Flashcard App" pageTitle="Spanish Vocabulary">
+  <div class="container mx-auto max-w-7xl p-4 sm:p-6">
+    <!-- Deck Tabs -->
+    <div class="mb-6 border-b border-border">
+      <nav class="-mb-px flex gap-8" aria-label="Deck sections">
+        <a
+          href={`/decks/${deckId}`}
+          class="border-b-2 border-primary px-1 py-4 text-sm font-medium text-primary"
+          aria-current="page"
+        >
+          Flashcards
+        </a>
+        <a
+          href={`/decks/${deckId}/stats`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Stats
+        </a>
+        <a
+          href={`/decks/${deckId}/settings`}
+          class="border-b-2 border-transparent px-1 py-4 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
+        >
+          Settings
+        </a>
+      </nav>
+    </div>
+
+    <!-- Flashcards Actions -->
+    <div class="mb-6 flex items-center justify-between">
+      <p class="text-sm text-muted-foreground">45 flashcards</p>
+      <div class="flex gap-2">
+        <button class="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent">
+          + Add Card
+        </button>
+        <button class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          Generate Flashcards
+        </button>
+      </div>
+    </div>
+
+    <!-- Flashcards List -->
+    <div class="space-y-3">
+      <!-- Mock Flashcard 1 -->
+      <div class="rounded-lg border border-border bg-card p-4">
+        <div class="mb-2 flex items-start justify-between">
+          <div class="flex-1">
+            <p class="mb-1 text-sm font-medium text-muted-foreground">Front</p>
+            <p class="text-foreground">¿Cómo estás?</p>
+          </div>
+          <span class="rounded bg-primary/10 px-2 py-1 text-xs text-primary">manual</span>
+        </div>
+        <div>
+          <p class="mb-1 text-sm font-medium text-muted-foreground">Back</p>
+          <p class="text-foreground">How are you?</p>
+        </div>
+      </div>
+
+      <!-- Mock Flashcard 2 -->
+      <div class="rounded-lg border border-border bg-card p-4">
+        <div class="mb-2 flex items-start justify-between">
+          <div class="flex-1">
+            <p class="mb-1 text-sm font-medium text-muted-foreground">Front</p>
+            <p class="text-foreground">Gracias</p>
+          </div>
+          <span class="rounded bg-secondary/50 px-2 py-1 text-xs">ai</span>
+        </div>
+        <div>
+          <p class="mb-1 text-sm font-medium text-muted-foreground">Back</p>
+          <p class="text-foreground">Thank you</p>
+        </div>
+      </div>
+
+      <!-- Mock Flashcard 3 -->
+      <div class="rounded-lg border border-border bg-card p-4">
+        <div class="mb-2 flex items-start justify-between">
+          <div class="flex-1">
+            <p class="mb-1 text-sm font-medium text-muted-foreground">Front</p>
+            <p class="text-foreground">Buenos días</p>
+          </div>
+          <span class="rounded bg-secondary/50 px-2 py-1 text-xs">ai</span>
+        </div>
+        <div>
+          <p class="mb-1 text-sm font-medium text-muted-foreground">Back</p>
+          <p class="text-foreground">Good morning</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
