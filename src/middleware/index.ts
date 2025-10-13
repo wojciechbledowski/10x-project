@@ -1,54 +1,75 @@
 import { defineMiddleware } from "astro:middleware";
-import { supabaseClient } from "../db/supabase.client";
+import { createSupabaseServerInstance } from "../db/supabase.client";
+
+/**
+ * Public paths that don't require authentication
+ * Includes auth pages, API endpoints, and legal pages
+ */
+const PUBLIC_PATHS = [
+  // Server-Rendered Astro Pages
+  "/",
+  "/auth/login",
+  "/auth/register",
+  "/auth/reset-password",
+  "/privacy",
+  "/terms",
+  "/error",
+  "/test-error",
+  // Auth API endpoints
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/logout",
+  "/api/auth/reset-password",
+];
 
 /**
  * Auth middleware that protects routes requiring authentication
- * Public routes: /, /login, /signup, /privacy, /terms, /error
- * Protected routes: /decks, /review, /profile, /test-error (dev only)
+ * Follows supabase-auth.mdc specification for SSR cookie handling
  */
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { url, redirect } = context;
+  const { url, redirect, cookies, request } = context;
   const pathname = url.pathname;
 
-  // Make Supabase client available in all routes
-  context.locals.supabase = supabaseClient;
-
-  // Define public routes that don't require authentication
-  const publicRoutes = ["/", "/login", "/signup", "/privacy", "/terms", "/error", "/test-error"];
-
-  // Check if current route is public
-  const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route + "/"));
-
-  // Allow public routes and static assets
-  if (isPublicRoute || pathname.startsWith("/_") || pathname.includes(".")) {
+  // Allow static assets and Astro internals
+  if (pathname.startsWith("/_") || pathname.includes(".")) {
     return next();
   }
 
-  // Check authentication for protected routes
-  try {
-    const {
-      data: { session },
-      error,
-    } = await supabaseClient.auth.getSession();
+  // Create SSR-compatible Supabase instance
+  const supabase = createSupabaseServerInstance({
+    cookies,
+    headers: request.headers,
+  });
 
-    // If no session or error, redirect to login
-    if (error || !session) {
-      return redirect("/login");
-    }
+  // Make Supabase available in locals for use in routes
+  context.locals.supabase = supabase;
 
-    // User is authenticated, allow access
-    // Store user info in locals for use in pages
+  // Check if current path is public (exact match or starts with path)
+  const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(path + "/"));
+
+  // Skip auth check for public paths
+  if (isPublicPath) {
+    return next();
+  }
+
+  // IMPORTANT: Always get user session using getUser() for protected routes
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    // Store user info in locals, including name from metadata or fallback to email
+    const displayName =
+      user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+
     context.locals.user = {
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "User",
+      email: user.email,
+      id: user.id,
+      name: displayName,
     };
-
     return next();
-  } catch (error) {
-    // On any error, redirect to login
-    // eslint-disable-next-line no-console
-    console.error("Auth middleware error:", error);
-    return redirect("/login");
   }
+
+  // No valid session - redirect to login
+  return redirect("/auth/login");
 });

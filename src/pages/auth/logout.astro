@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getLanguageFromCookie, createTranslator } from "../../lib/i18n/utils";
+
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+
+// In the future, this will call the logout API and clear session
+// For now, it's just a placeholder page
+---
+
+<Layout title={`${t("auth.logout")} - ${t("common.appName")}`} showNavigation={false}>
+  <div class="flex min-h-screen items-center justify-center bg-background px-4">
+    <div class="w-full max-w-md space-y-8 text-center">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground">{t("auth.loggingOut")}</h1>
+        <p class="mt-2 text-sm text-muted-foreground">{t("auth.logoutPrompt")}</p>
+      </div>
+
+      <!-- Redirect message -->
+      <div class="rounded-lg border border-border bg-card p-8 shadow-sm">
+        <div class="flex items-center justify-center">
+          <div class="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // In production, this will redirect after logout API call
+  // For now, just redirect to home after a short delay
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 1500);
+</script>

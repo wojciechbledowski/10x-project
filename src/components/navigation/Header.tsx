@@ -1,21 +1,27 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { AvatarDropdown } from "./AvatarDropdown";
 import { I18nProvider, useI18n } from "@/lib/i18n/react";
 import type { Language } from "@/lib/i18n/config";
 
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+}
+
 interface HeaderProps {
   title: string;
-  userName?: string;
+  user?: User;
   lang?: Language;
 }
 
 /**
  * Application header with page title, theme toggle, language switcher, and user menu
  */
-function HeaderInner({ title, userName = "User" }: Omit<HeaderProps, "lang">) {
+function HeaderInner({ title, user }: Omit<HeaderProps, "lang">) {
   const { t, lang: currentLang } = useI18n();
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -35,14 +41,6 @@ function HeaderInner({ title, userName = "User" }: Omit<HeaderProps, "lang">) {
     localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
-
-  // Get user initials for avatar
-  const userInitials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
@@ -66,19 +64,28 @@ function HeaderInner({ title, userName = "User" }: Omit<HeaderProps, "lang">) {
           )}
         </Button>
 
-        {/* User Avatar Menu - placeholder for now */}
-        <Avatar className="h-9 w-9">
-          <AvatarFallback className="bg-primary text-primary-foreground">{userInitials}</AvatarFallback>
-        </Avatar>
+        {/* Auth State - Show Login/Register or User Menu */}
+        {user ? (
+          <AvatarDropdown userName={user.name} userEmail={user.email} lang={currentLang} />
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/auth/login">{t("auth.login")}</a>
+            </Button>
+            <Button size="sm" asChild>
+              <a href="/auth/register">{t("auth.signup")}</a>
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );
 }
 
-export function Header({ title, userName = "User", lang = "en" }: HeaderProps) {
+export function Header({ title, user, lang = "en" }: HeaderProps) {
   return (
     <I18nProvider lang={lang as Language}>
-      <HeaderInner title={title} userName={userName} />
+      <HeaderInner title={title} user={user} />
     </I18nProvider>
   );
 }

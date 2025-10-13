@@ -1,0 +1,32 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { RegisterForm } from "../../components/auth/RegisterForm";
+import { getLanguageFromCookie, createTranslator } from "../../lib/i18n/utils";
+
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+---
+
+<Layout title={`${t("auth.signup")} - ${t("common.appName")}`} showNavigation={false}>
+  <div class="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+    <div class="w-full max-w-md space-y-8">
+      <!-- Logo/Header -->
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-foreground">{t("auth.createAccount")}</h1>
+        <p class="mt-2 text-sm text-muted-foreground">{t("auth.signUpPrompt")}</p>
+      </div>
+
+      <!-- Sign Up Form -->
+      <div class="rounded-lg border border-border bg-card p-8 shadow-sm">
+        <RegisterForm lang={lang} client:load />
+      </div>
+
+      <!-- Legal Links -->
+      <div class="flex justify-center gap-4 text-xs text-muted-foreground">
+        <a href="/privacy" class="hover:text-foreground">{t("legal.privacy")}</a>
+        <span>•</span>
+        <a href="/terms" class="hover:text-foreground">{t("legal.terms")}</a>
+      </div>
+    </div>
+  </div>
+</Layout>

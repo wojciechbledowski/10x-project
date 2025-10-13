@@ -9,18 +9,16 @@ import { getLanguageFromCookie } from "../lib/i18n/utils";
 interface Props {
   title?: string;
   pageTitle?: string;
-  userName?: string;
   showNavigation?: boolean; // Allow hiding navigation for public pages
 }
 
-const { title = "Flashcard App", pageTitle = "Flashcards", userName, showNavigation = true } = Astro.props;
+const { title = "Flashcard App", pageTitle = "Flashcards", showNavigation = true } = Astro.props;
 
 // Get current path for active nav state
 const currentPath = Astro.url.pathname;
 
 // Get user from locals (set by auth middleware)
 const user = Astro.locals.user;
-const displayName = userName || user?.name || "User";
 
 // Get current language from cookie
 const currentLang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
@@ -46,7 +44,7 @@ const currentLang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
           {/* Main Content Area */}
           <div class="flex flex-1 flex-col overflow-hidden">
             {/* Header */}
-            <Header title={pageTitle} userName={displayName} lang={currentLang} client:load />
+            <Header title={pageTitle} user={user} lang={currentLang} client:load />
 
             {/* Page Content */}
             <main class="flex-1 overflow-y-auto pb-20 sm:pb-0">

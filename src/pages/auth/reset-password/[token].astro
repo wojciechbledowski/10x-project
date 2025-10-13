@@ -1,0 +1,35 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { ResetPasswordForm } from "../../../components/auth/ResetPasswordForm";
+import { getLanguageFromCookie, createTranslator } from "../../../lib/i18n/utils";
+
+const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+const t = createTranslator(lang);
+
+// Get the token from URL params
+const { token } = Astro.params;
+---
+
+<Layout title={`${t("auth.setNewPassword")} - ${t("common.appName")}`} showNavigation={false}>
+  <div class="flex min-h-screen items-center justify-center bg-background px-4">
+    <div class="w-full max-w-md space-y-8">
+      <!-- Logo/Header -->
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-foreground">{t("auth.setNewPassword")}</h1>
+        <p class="mt-2 text-sm text-muted-foreground">{t("auth.setNewPasswordPrompt")}</p>
+      </div>
+
+      <!-- Reset Password Form -->
+      <div class="rounded-lg border border-border bg-card p-8 shadow-sm">
+        <ResetPasswordForm lang={lang} token={token || ""} client:load />
+      </div>
+
+      <!-- Legal Links -->
+      <div class="flex justify-center gap-4 text-xs text-muted-foreground">
+        <a href="/privacy" class="hover:text-foreground">{t("legal.privacy")}</a>
+        <span>•</span>
+        <a href="/terms" class="hover:text-foreground">{t("legal.terms")}</a>
+      </div>
+    </div>
+  </div>
+</Layout>

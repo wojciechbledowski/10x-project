@@ -1,8 +1,47 @@
-import { createClient } from "@supabase/supabase-js";
+import type { AstroCookies } from "astro";
+import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
+import type { Database } from "./database.types";
 
-import type { Database } from "../db/database.types.ts";
+/**
+ * Cookie options for Supabase auth
+ * Per supabase-auth.mdc requirements
+ */
+export const cookieOptions: CookieOptionsWithName = {
+  path: "/",
+  secure: true,
+  httpOnly: true,
+  sameSite: "lax",
+};
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+/**
+ * Parse cookie header string into array of name-value pairs
+ */
+function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
+  return cookieHeader.split(";").map((cookie) => {
+    const [name, ...rest] = cookie.trim().split("=");
+    return { name, value: rest.join("=") };
+  });
+}
 
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+/**
+ * Create Supabase server instance with SSR cookie handling
+ * This is the ONLY way to create Supabase clients in this application
+ *
+ * @param context - Object containing request headers and Astro cookies
+ * @returns Configured Supabase server client
+ */
+export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+    cookieOptions,
+    cookies: {
+      getAll() {
+        return parseCookieHeader(context.headers.get("Cookie") ?? "");
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+      },
+    },
+  });
+
+  return supabase;
+};

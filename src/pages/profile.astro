@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { DeleteAccountButton } from "../components/profile/DeleteAccountButton";
 import { getLanguageFromCookie, createTranslator } from "../lib/i18n/utils";
 
 const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
@@ -97,11 +98,7 @@ const t = createTranslator(lang);
       <p class="mb-4 text-sm text-muted-foreground">
         {t("profile.deleteAccountWarning")}
       </p>
-      <button
-        class="rounded-lg border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground"
-      >
-        {t("profile.deleteAccount")}
-      </button>
+      <DeleteAccountButton client:load />
     </div>
   </div>
 </Layout>
