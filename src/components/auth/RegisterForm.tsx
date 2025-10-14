@@ -2,6 +2,7 @@ import { useState, useCallback, useId, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n, I18nProvider } from "@/lib/i18n/react";
 import { registerSchema } from "@/lib/auth/schemas";
+import { toast } from "sonner";
 import type { Language } from "@/lib/i18n/config";
 
 interface RegisterFormProps {
@@ -38,9 +39,10 @@ function RegisterFormInner({ onSubmit }: RegisterFormProps) {
     confirmPassword?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const validateForm = useCallback(() => {
-    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    const result = registerSchema.safeParse({ name, email, password, confirmPassword });
 
     if (!result.success) {
       const newErrors: {
@@ -51,7 +53,7 @@ function RegisterFormInner({ onSubmit }: RegisterFormProps) {
       } = {};
 
       result.error.errors.forEach((err) => {
-        const field = err.path[0] as "email" | "password" | "confirmPassword";
+        const field = err.path[0] as "name" | "email" | "password" | "confirmPassword";
         newErrors[field] = t(err.message);
       });
 
@@ -61,7 +63,7 @@ function RegisterFormInner({ onSubmit }: RegisterFormProps) {
 
     setErrors({});
     return true;
-  }, [email, password, confirmPassword, t]);
+  }, [name, email, password, confirmPassword, t]);
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
@@ -73,15 +75,88 @@ function RegisterFormInner({ onSubmit }: RegisterFormProps) {
 
       setIsLoading(true);
 
-      // Call the onSubmit handler if provided (will connect to API later)
-      if (onSubmit) {
-        await onSubmit({ name, email, password });
-      }
+      try {
+        // Call custom onSubmit if provided (for testing)
+        if (onSubmit) {
+          await onSubmit({ name, email, password });
+          setIsLoading(false);
+          return;
+        }
 
-      setIsLoading(false);
+        // Call register API endpoint
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password, confirmPassword }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // API returned an error
+          const errorMessage = data.error ? t(data.error) : t("auth.errors.unexpectedError");
+          toast.error(errorMessage);
+          setIsLoading(false);
+          return;
+        }
+
+        // Success! Set success state to show confirmation message
+        setIsSuccess(true);
+        setIsLoading(false);
+      } catch {
+        // Network error or unexpected issue
+        toast.error(t("auth.errors.networkError"));
+        setIsLoading(false);
+      }
     },
-    [name, email, password, onSubmit, validateForm]
+    [name, email, password, confirmPassword, onSubmit, validateForm, t]
   );
+
+  // Show success message after registration
+  if (isSuccess) {
+    return (
+      <div className="space-y-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+          <svg
+            className="h-6 w-6 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium text-foreground">{t("auth.success.registrationComplete")}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{t("auth.success.checkEmail")}</p>
+        </div>
+
+        <div className="space-y-4">
+          <Button asChild className="w-full">
+            <a href="/auth/login">{t("auth.goToLogin")}</a>
+          </Button>
+
+          <p className="text-xs text-muted-foreground">
+            {t("auth.didntReceiveEmail")}{" "}
+            <button
+              type="button"
+              className="text-primary hover:underline"
+              onClick={() => {
+                setIsSuccess(false);
+                // Optionally clear form or keep email for resubmission
+              }}
+            >
+              {t("auth.tryAgain")}
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

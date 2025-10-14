@@ -2,6 +2,7 @@ import { useState, useCallback, useId, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n, I18nProvider } from "@/lib/i18n/react";
 import { resetPasswordSchema } from "@/lib/auth/schemas";
+import { toast } from "sonner";
 import type { Language } from "@/lib/i18n/config";
 
 interface ResetPasswordFormProps {
@@ -50,20 +51,57 @@ function ResetPasswordFormInner({ token, onSubmit }: ResetPasswordFormProps) {
     async (e: FormEvent) => {
       e.preventDefault();
 
+      // Client-side validation
       if (!validateForm()) {
         return;
       }
 
       setIsLoading(true);
 
-      // Call the onSubmit handler if provided (will connect to API later)
-      if (onSubmit) {
-        await onSubmit({ token, password });
-      }
+      try {
+        // Call custom onSubmit if provided (for testing)
+        if (onSubmit) {
+          await onSubmit({ token, password });
+          setIsLoading(false);
+          return;
+        }
 
-      setIsLoading(false);
+        // Call reset password with token API endpoint
+        const response = await fetch(`/api/auth/reset-password/${encodeURIComponent(token)}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password, confirmPassword: confirmPassword }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // API returned an error
+          const errorMessage = data.error ? t(data.error) : t("auth.errors.unexpectedError");
+          toast.error(errorMessage);
+          setIsLoading(false);
+          return;
+        }
+
+        // Success! Show toast and redirect
+        toast.success(t("auth.success.passwordReset"));
+
+        // Small delay to let toast show, then redirect
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 500);
+      } catch (error) {
+        // Network error or unexpected issue
+        // eslint-disable-next-line no-console
+        console.error("Reset password error:", error);
+        toast.error(t("auth.errors.networkError"));
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [token, password, onSubmit, validateForm]
+    [token, password, confirmPassword, onSubmit, validateForm, t]
   );
 
   return (

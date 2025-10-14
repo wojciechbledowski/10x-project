@@ -42,6 +42,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
  */
 export const registerSchema = z
   .object({
+    name: z.string().min(1, "auth.errors.nameRequired").max(100, "auth.errors.nameTooLong"),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, "auth.errors.confirmPasswordRequired"),
@@ -76,3 +77,23 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
+/**
+ * Update password schema (requires current password)
+ */
+export const updatePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "auth.errors.currentPasswordRequired"),
+    newPassword: passwordSchema,
+    confirmNewPassword: z.string().min(1, "auth.errors.confirmPasswordRequired"),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "auth.errors.passwordMismatch",
+    path: ["confirmNewPassword"],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: "auth.errors.newPasswordDifferent",
+    path: ["newPassword"],
+  });
+
+export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;

@@ -5,8 +5,22 @@ import { getLanguageFromCookie, createTranslator } from "../../lib/i18n/utils";
 const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
 const t = createTranslator(lang);
 
-// In the future, this will call the logout API and clear session
-// For now, it's just a placeholder page
+// Call logout API to sign out user and clear session
+try {
+  const response = await fetch(`${Astro.url.origin}/api/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: Astro.request.headers.get("cookie") || "",
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Logout API call failed:", response.status);
+  }
+} catch (error) {
+  console.error("Error calling logout API:", error);
+}
 ---
 
 <Layout title={`${t("auth.logout")} - ${t("common.appName")}`} showNavigation={false}>
@@ -17,10 +31,14 @@ const t = createTranslator(lang);
         <p class="mt-2 text-sm text-muted-foreground">{t("auth.logoutPrompt")}</p>
       </div>
 
-      <!-- Redirect message -->
+      <!-- Success message -->
       <div class="rounded-lg border border-border bg-card p-8 shadow-sm">
         <div class="flex items-center justify-center">
-          <div class="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary"></div>
+          <div class="text-green-600">
+            <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -28,9 +46,8 @@ const t = createTranslator(lang);
 </Layout>
 
 <script>
-  // In production, this will redirect after logout API call
-  // For now, just redirect to home after a short delay
+  // Redirect to home after showing success message
   setTimeout(() => {
     window.location.href = "/";
-  }, 1500);
+  }, 1000);
 </script>

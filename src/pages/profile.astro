@@ -1,10 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { DeleteAccountButton } from "../components/profile/DeleteAccountButton";
+import { DeleteAccountButton } from "../components/auth/DeleteAccountButton";
+import { UpdatePasswordForm } from "../components/auth/UpdatePasswordForm";
+import { UpdateDisplayNameForm } from "../components/auth/UpdateDisplayNameForm";
 import { getLanguageFromCookie, createTranslator } from "../lib/i18n/utils";
 
 const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
 const t = createTranslator(lang);
+
+// User is guaranteed to exist on protected routes via middleware
+const user = Astro.locals.user;
 ---
 
 <Layout title={`${t("profile.title")} - ${t("common.appName")}`} pageTitle={t("profile.title")}>
@@ -18,7 +23,7 @@ const t = createTranslator(lang);
           <label class="mb-2 block text-sm font-medium text-foreground">{t("auth.email")}</label>
           <input
             type="email"
-            value="user@example.com"
+            value={user?.email || ""}
             disabled
             class="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
           />
@@ -26,18 +31,7 @@ const t = createTranslator(lang);
 
         <div>
           <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.displayName")}</label>
-          <div class="flex gap-3">
-            <input
-              type="text"
-              value="John Doe"
-              class="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
-            />
-            <button
-              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              {t("common.save")}
-            </button>
-          </div>
+          <UpdateDisplayNameForm currentName={user?.name || ""} lang={lang} client:load />
         </div>
       </div>
     </div>
@@ -45,36 +39,7 @@ const t = createTranslator(lang);
     <!-- Password Section -->
     <div class="mb-6 rounded-lg border border-border bg-card p-6">
       <h2 class="mb-4 text-xl font-semibold text-card-foreground">{t("profile.changePassword")}</h2>
-
-      <div class="space-y-4">
-        <div>
-          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.currentPassword")}</label>
-          <input
-            type="password"
-            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
-          />
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.newPassword")}</label>
-          <input
-            type="password"
-            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
-          />
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm font-medium text-foreground">{t("profile.confirmNewPassword")}</label>
-          <input
-            type="password"
-            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
-          />
-        </div>
-
-        <button class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          {t("profile.updatePassword")}
-        </button>
-      </div>
+      <UpdatePasswordForm lang={lang} client:load />
     </div>
 
     <!-- Preferences Section -->
@@ -98,7 +63,7 @@ const t = createTranslator(lang);
       <p class="mb-4 text-sm text-muted-foreground">
         {t("profile.deleteAccountWarning")}
       </p>
-      <DeleteAccountButton client:load />
+      <DeleteAccountButton lang={lang} client:load />
     </div>
   </div>
 </Layout>

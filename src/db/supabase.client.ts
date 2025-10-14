@@ -45,3 +45,31 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
 
   return supabase;
 };
+
+/**
+ * Create Supabase service role client for admin operations
+ * Uses SUPABASE_SERVICE_ROLE_KEY for full access (deleting users, etc.)
+ * This is the ONLY way to create service role clients in this application
+ *
+ * @param context - Object containing request headers and Astro cookies
+ * @returns Configured Supabase service role client
+ */
+export const createSupabaseServiceClient = (context: { headers: Headers; cookies: AstroCookies }) => {
+  const supabase = createServerClient<Database>(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY, // Service role key for admin operations
+    {
+      cookieOptions,
+      cookies: {
+        getAll() {
+          return parseCookieHeader(context.headers.get("Cookie") ?? "");
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+        },
+      },
+    }
+  );
+
+  return supabase;
+};
