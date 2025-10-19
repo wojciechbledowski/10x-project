@@ -1,66 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { DecksApp } from "../../components/decks/DecksApp.tsx";
 import { getLanguageFromCookie, createTranslator } from "../../lib/i18n/utils";
+
+export const prerender = false;
 
 const lang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
 const t = createTranslator(lang);
 ---
 
 <Layout title={`${t("decks.title")} - ${t("common.appName")}`} pageTitle={t("decks.title")}>
-  <div class="container mx-auto max-w-7xl p-4 sm:p-6">
-    <!-- Decks List Header -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold text-foreground">{t("decks.title")}</h2>
-        <p class="text-sm text-muted-foreground">{t("decks.subtitle")}</p>
-      </div>
-      <button class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-        + {t("decks.createDeck")}
-      </button>
-    </div>
-
-    <!-- Mock Deck Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Mock Deck Card 1 -->
-      <a href="/decks/deck-1" class="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md">
-        <h3 class="mb-2 text-lg font-semibold text-card-foreground">Spanish Vocabulary</h3>
-        <div class="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{t("decks.cardsCount", { count: 45 })}</span>
-          <span class="text-destructive">{t("decks.cardsDue", { count: 12 })}</span>
-        </div>
-      </a>
-
-      <!-- Mock Deck Card 2 -->
-      <a href="/decks/deck-2" class="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md">
-        <h3 class="mb-2 text-lg font-semibold text-card-foreground">React Hooks</h3>
-        <div class="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{t("decks.cardsCount", { count: 28 })}</span>
-          <span class="text-destructive">{t("decks.cardsDue", { count: 5 })}</span>
-        </div>
-      </a>
-
-      <!-- Mock Deck Card 3 -->
-      <a href="/decks/deck-3" class="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md">
-        <h3 class="mb-2 text-lg font-semibold text-card-foreground">Medical Terms</h3>
-        <div class="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{t("decks.cardsCount", { count: 156 })}</span>
-          <span>{t("decks.allReviewed")}</span>
-        </div>
-      </a>
-    </div>
-
-    <!-- Empty State Example (commented out) -->
-    <!--
-    <div class="flex flex-col items-center justify-center py-16 text-center">
-      <svg class="mb-4 h-24 w-24 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-      <h3 class="mb-2 text-xl font-semibold text-foreground">{t("decks.noDeck")}</h3>
-      <p class="mb-6 text-muted-foreground">{t("decks.createFirstDeck")}</p>
-      <button class="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90">
-        {t("decks.createFirstDeck")}
-      </button>
-    </div>
-    -->
-  </div>
+  <DecksApp client:load lang={lang} />
 </Layout>

@@ -31,6 +31,21 @@ export interface DeckDetailResponse extends DeckResponse {
 }
 
 /**
+ * View-model used by DeckCard & DeckGrid
+ */
+export interface DeckCardVM {
+  id: string;
+  name: string;
+  totalCards: number; // cardCount from API
+  dueCards: number; // to be added to API later – initially 0
+}
+
+/**
+ * Sort key enum (kept in view layer)
+ */
+export type SortKey = "created_at" | "-created_at" | "name";
+
+/**
  * Command Model for updating a deck
  * PATCH /decks/{deckId}
  */
