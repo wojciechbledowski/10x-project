@@ -46,6 +46,8 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
   return supabase;
 };
 
+export type SupabaseServerClient = ReturnType<typeof createSupabaseServerInstance>;
+
 /**
  * Create Supabase service role client for admin operations
  * Uses SUPABASE_SERVICE_ROLE_KEY for full access (deleting users, etc.)

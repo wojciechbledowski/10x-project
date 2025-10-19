@@ -9,6 +9,9 @@
 export { ConsoleLogger, NoopLogger } from "./logger";
 export type { Logger } from "./logger";
 
+// API Response Helpers
+export { createJsonResponse, createErrorResponse } from "./apiResponse";
+
 // Errors
 export {
   AppError,
