@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServerInstance } from "../db/supabase.client";
+import { getLanguageFromCookie } from "@/lib/i18n/utils";
 import type { Theme } from "../types";
 
 /**
@@ -69,6 +70,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const theme = getThemeFromCookies(request.headers);
   console.log("Setting theme in locals:", theme); // Debug log
   context.locals.theme = theme;
+
+  const lang = getLanguageFromCookie(request.headers.get("cookie"));
+  context.locals.lang = lang;
 
   // Create SSR-compatible Supabase instance
   const supabase = createSupabaseServerInstance({

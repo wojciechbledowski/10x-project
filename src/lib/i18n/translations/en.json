@@ -115,7 +115,12 @@
     "oldestFirst": "Oldest first",
     "nameAZ": "Name (A-Z)",
     "openDeck": "Open deck: {{name}}",
-    "learnWithAI": "Create your first deck to start learning. Add cards, organize by topic, and track your progress with spaced repetition."
+    "learnWithAI": "Create your first deck to start learning. Add cards, organize by topic, and track your progress with spaced repetition.",
+    "tabs": {
+      "flashcards": "Flashcards",
+      "stats": "Stats",
+      "settings": "Settings"
+    }
   },
   "flashcards": {
     "title": "Flashcards",
@@ -123,6 +128,16 @@
     "generateFlashcards": "Generate Flashcards",
     "front": "Front",
     "back": "Back",
+    "frontRequired": "Front content is required",
+    "backRequired": "Back content is required",
+    "frontTooLong": "Front content must be less than 1000 characters",
+    "backTooLong": "Back content must be less than 1000 characters",
+    "editDescription": "Update the front and back content of this flashcard.",
+    "frontPlaceholder": "Enter the question or prompt",
+    "backPlaceholder": "Enter the answer or explanation",
+    "emptyTitle": "No flashcards yet",
+    "emptyDescription": "Create your first flashcard to start learning.",
+    "count": "{{count}} flashcard{{count === 1 ? '' : 's'}}",
     "source": {
       "manual": "manual",
       "ai": "ai",
@@ -184,9 +199,14 @@
   "settings": {
     "title": "Settings",
     "deckName": "Deck Name",
+    "deckNameRequired": "Deck name is required",
+    "deckNameTooLong": "Deck name must be less than 255 characters",
+    "loadDeckError": "Failed to load deck",
     "dangerZone": "Danger Zone",
     "deleteDeck": "Delete Deck",
-    "deleteDeckWarning": "Deleting a deck is permanent and cannot be undone. All flashcards in this deck will be deleted."
+    "deleteDeckWarning": "Deleting a deck is permanent and cannot be undone. All flashcards in this deck will be deleted.",
+    "deleteDeckConfirm": "Are you sure you want to delete this deck? This action cannot be undone.",
+    "deleteDeckConfirmCards": "This will permanently delete {{count}} cards."
   },
   "legal": {
     "privacy": "Privacy Policy",
@@ -202,5 +222,9 @@
     "retryPageTitle": "Retry the page that caused the error",
     "cannotRetryOffline": "Cannot retry while offline",
     "offline": "Offline"
+  },
+  "pages": {
+    "decks": "Decks",
+    "review": "Review"
   }
 }

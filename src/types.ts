@@ -452,3 +452,38 @@ export interface SortParams {
  * Combined query parameters for list endpoints
  */
 export interface ListQueryParams extends PaginationParams, SortParams {}
+
+// ============================================================================
+// VIEW MODELS
+// ============================================================================
+
+/**
+ * Represents the deck's data for display purposes.
+ */
+export interface DeckDetailVM {
+  id: string;
+  name: string;
+  createdAt: string; // Formatted for display
+  cardCount: number;
+}
+
+/**
+ * A client-side representation of a flashcard.
+ */
+export interface FlashcardVM {
+  id: string;
+  front: string;
+  back: string;
+  source: FlashcardSource;
+  nextReviewAt: string | null; // Formatted for display
+}
+
+/**
+ * A data structure for the statistics tab.
+ */
+export interface DeckStatsVM {
+  dueTodayCount: number;
+  newTodayCount: number;
+  totalCards: number;
+  easeDistribution: { ease: number; count: number }[];
+}

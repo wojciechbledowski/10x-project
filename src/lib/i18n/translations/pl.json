@@ -115,7 +115,12 @@
     "oldestFirst": "Najstarsze najpierw",
     "nameAZ": "Nazwa (A-Z)",
     "openDeck": "Otwórz talię: {{name}}",
-    "learnWithAI": "Utwórz swoją pierwszą talię, aby rozpocząć naukę. Dodawaj fiszki, organizuj według tematów i śledź swoje postępy z rozłożonym w czasie powtarzaniem."
+    "learnWithAI": "Utwórz swoją pierwszą talię, aby rozpocząć naukę. Dodawaj fiszki, organizuj według tematów i śledź swoje postępy z rozłożonym w czasie powtarzaniem.",
+    "tabs": {
+      "flashcards": "Fiszki",
+      "stats": "Statystyki",
+      "settings": "Ustawienia"
+    }
   },
   "flashcards": {
     "title": "Fiszki",
@@ -123,6 +128,16 @@
     "generateFlashcards": "Generuj fiszki",
     "front": "Przód",
     "back": "Tył",
+    "frontRequired": "Treść przodu jest wymagana",
+    "backRequired": "Treść tyłu jest wymagana",
+    "frontTooLong": "Treść przodu musi mieć mniej niż 1000 znaków",
+    "backTooLong": "Treść tyłu musi mieć mniej niż 1000 znaków",
+    "editDescription": "Zaktualizuj treść przodu i tyłu tej fiszki.",
+    "frontPlaceholder": "Wprowadź pytanie lub podpowiedź",
+    "backPlaceholder": "Wprowadź odpowiedź lub wyjaśnienie",
+    "emptyTitle": "Brak fiszek jeszcze",
+    "emptyDescription": "Utwórz swoją pierwszą fiszkę, aby rozpocząć naukę.",
+    "count": "{{count}} fiszk{{count === 1 ? 'a' : count < 5 ? 'i' : 'ek'}}",
     "source": {
       "manual": "ręczne",
       "ai": "ai",
@@ -184,9 +199,14 @@
   "settings": {
     "title": "Ustawienia",
     "deckName": "Nazwa talii",
+    "deckNameRequired": "Nazwa talii jest wymagana",
+    "deckNameTooLong": "Nazwa talii musi mieć mniej niż 255 znaków",
+    "loadDeckError": "Nie udało się załadować talii",
     "dangerZone": "Strefa niebezpieczna",
     "deleteDeck": "Usuń talię",
-    "deleteDeckWarning": "Usunięcie talii jest trwałe i nie może być cofnięte. Wszystkie fiszki w tej talii zostaną usunięte."
+    "deleteDeckWarning": "Usunięcie talii jest trwałe i nie może być cofnięte. Wszystkie fiszki w tej talii zostaną usunięte.",
+    "deleteDeckConfirm": "Czy na pewno chcesz usunąć tę talię? Ta akcja nie może być cofnięta.",
+    "deleteDeckConfirmCards": "Spowoduje to trwałe usunięcie {{count}} fiszek."
   },
   "legal": {
     "privacy": "Polityka prywatności",
@@ -202,5 +222,9 @@
     "retryPageTitle": "Spróbuj ponownie załadować stronę, która spowodowała błąd",
     "cannotRetryOffline": "Nie można spróbować ponownie offline",
     "offline": "Offline"
+  },
+  "pages": {
+    "decks": "Talie",
+    "review": "Powtórka"
   }
 }

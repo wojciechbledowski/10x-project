@@ -1,0 +1,33 @@
+---
+import type { DeckDetailResponse } from "@/types";
+import Layout from "@/layouts/Layout.astro";
+import { DeckService } from "@/lib/services/deckService";
+import TabNav from "@/components/decks/TabNav";
+
+interface Props {
+  deck?: DeckDetailResponse;
+}
+
+const { deckId } = Astro.params;
+const supabase = Astro.locals.supabase;
+const deckService = new DeckService(supabase);
+
+const deck = deckId ? await deckService.getDeckDetail(deckId) : undefined;
+
+if (!deck) {
+  return new Response(null, {
+    status: 404,
+    statusText: "Not Found",
+  });
+}
+
+const lang = Astro.locals.lang;
+const currentPath = Astro.url.pathname;
+---
+
+<Layout pageTitle={deck.name}>
+  <div class="container mx-auto max-w-7xl p-4 sm:p-6">
+    <TabNav client:load deckId={deck.id} lang={lang} currentPath={currentPath} />
+    <slot />
+  </div>
+</Layout>

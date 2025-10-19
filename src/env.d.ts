@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./db/database.types.ts";
 import type { Theme } from "./types";
+import type { Language } from "./lib/i18n/config.ts";
 
 declare global {
   namespace App {
@@ -14,6 +15,7 @@ declare global {
         name: string;
       };
       theme: Theme;
+      lang: Language;
     }
   }
 }

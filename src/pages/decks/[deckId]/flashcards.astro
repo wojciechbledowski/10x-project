@@ -1,6 +1,6 @@
 ---
 import DeckDetailLayout from "@/layouts/DeckDetailLayout.astro";
-import { StatsPanel } from "@/components/decks/StatsPanel";
+import { FlashcardList } from "@/components/decks/FlashcardList";
 
 const { deckId } = Astro.params;
 const lang = Astro.locals.lang;
@@ -10,5 +10,5 @@ if (!deckId) {
 ---
 
 <DeckDetailLayout>
-  <StatsPanel client:load deckId={deckId} lang={lang} />
+  <FlashcardList client:load deckId={deckId} lang={lang} />
 </DeckDetailLayout>
