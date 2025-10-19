@@ -22,10 +22,13 @@ const user = Astro.locals.user;
 
 // Get current language from cookie
 const currentLang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
+
+// Get theme from locals (set by middleware)
+const theme = Astro.locals.theme;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={currentLang} class={theme === "dark" ? "dark" : ""}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -44,7 +47,7 @@ const currentLang = getLanguageFromCookie(Astro.request.headers.get("cookie"));
           {/* Main Content Area */}
           <div class="flex flex-1 flex-col overflow-hidden">
             {/* Header */}
-            <Header title={pageTitle} user={user} lang={currentLang} client:load />
+            <Header title={pageTitle} user={user} lang={currentLang} theme={theme} client:load />
 
             {/* Page Content */}
             <main class="flex-1 overflow-y-auto pb-20 sm:pb-0">

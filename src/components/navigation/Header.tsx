@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { AvatarDropdown } from "./AvatarDropdown";
 import { I18nProvider, useI18n } from "@/lib/i18n/react";
 import type { Language } from "@/lib/i18n/config";
+import type { Theme } from "@/types";
 
 interface User {
   id: string;
@@ -16,29 +17,26 @@ interface HeaderProps {
   title: string;
   user?: User;
   lang?: Language;
+  theme?: Theme;
 }
 
 /**
  * Application header with page title, theme toggle, language switcher, and user menu
  */
-function HeaderInner({ title, user }: Omit<HeaderProps, "lang">) {
+function HeaderInner({ title, user, theme: initialTheme = "light" }: Omit<HeaderProps, "lang"> & { theme?: Theme }) {
   const { t, lang: currentLang } = useI18n();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  useEffect(() => {
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
-  }, []);
+  // Initialize theme state with the theme provided from server or fallback to light
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+
+    // Set theme cookie for server-side rendering (expires in 1 year)
+    const maxAge = 60 * 60 * 24 * 365; // 1 year in seconds
+    document.cookie = `theme=${newTheme}; path=/; max-age=${maxAge}; SameSite=Lax`;
+
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
@@ -82,10 +80,10 @@ function HeaderInner({ title, user }: Omit<HeaderProps, "lang">) {
   );
 }
 
-export function Header({ title, user, lang = "en" }: HeaderProps) {
+export function Header({ title, user, lang = "en", theme = "light" }: HeaderProps) {
   return (
     <I18nProvider lang={lang as Language}>
-      <HeaderInner title={title} user={user} />
+      <HeaderInner title={title} user={user} theme={theme} />
     </I18nProvider>
   );
 }

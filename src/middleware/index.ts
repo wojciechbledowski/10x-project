@@ -1,5 +1,35 @@
 import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServerInstance } from "../db/supabase.client";
+import type { Theme } from "../types";
+
+/**
+ * Get theme preference from cookies or system preference
+ */
+function getThemeFromCookies(headers: Headers): Theme {
+  // Get the Cookie header which contains all cookies as "name=value; name2=value2"
+  const cookieHeader = headers.get("cookie");
+
+  if (cookieHeader) {
+    // Parse cookies from the header
+    const cookies = cookieHeader.split(";").reduce(
+      (acc, cookie) => {
+        const [name, value] = cookie.trim().split("=");
+        acc[name] = value;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    const theme = cookies["theme"] as Theme;
+
+    if (theme === "light" || theme === "dark") {
+      return theme;
+    }
+  }
+
+  // Fallback to light theme
+  return "light";
+}
 
 /**
  * Public paths that don't require authentication
@@ -34,6 +64,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (pathname.startsWith("/_") || pathname.includes(".")) {
     return next();
   }
+
+  // Get theme preference and make it available in locals
+  const theme = getThemeFromCookies(request.headers);
+  console.log("Setting theme in locals:", theme); // Debug log
+  context.locals.theme = theme;
 
   // Create SSR-compatible Supabase instance
   const supabase = createSupabaseServerInstance({

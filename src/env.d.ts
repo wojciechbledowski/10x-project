@@ -2,6 +2,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./db/database.types.ts";
+import type { Theme } from "./types";
 
 declare global {
   namespace App {
@@ -12,6 +13,7 @@ declare global {
         email: string | undefined;
         name: string;
       };
+      theme: Theme;
     }
   }
 }
