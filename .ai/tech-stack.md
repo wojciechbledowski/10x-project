@@ -18,6 +18,14 @@ AI – Communication with models through the Openrouter.ai service:
 - Grants access to a wide range of models (OpenAI, Anthropic, Google and many others), allowing us to choose a high-performance, cost-effective option.
 - Enables setting financial limits on API keys.
 
+Testing – Comprehensive test suite for quality assurance:
+
+- Vitest provides fast unit and integration testing with React Testing Library for component testing.
+- Playwright enables reliable end-to-end testing across multiple browsers with headless and headed modes.
+- k6 handles load testing and API performance validation.
+- axe-core and Lighthouse ensure WCAG AA accessibility compliance and performance monitoring.
+- ESLint security plugins and npm audit provide static security analysis.
+
 CI/CD and Hosting:
 
 - GitHub Actions for building CI/CD pipelines.

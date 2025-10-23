@@ -21,13 +21,14 @@ Paste up to **10 000 characters** of text, let the AI create question–answer c
 
 ## Tech Stack
 
-| Layer    | Technology                                                     |
-| -------- | -------------------------------------------------------------- |
-| Frontend | Astro 5 · React 19 · TypeScript 5 · Tailwind CSS 4 · Shadcn/ui |
-| Backend  | Supabase (PostgreSQL, Auth)                                    |
-| AI       | Openrouter.ai (access to OpenAI, Anthropic, Google Gemini, …)  |
-| CI/CD    | GitHub Actions (lint → build → test)                           |
-| Hosting  | DigitalOcean (Docker image)                                    |
+| Layer    | Technology                                                               |
+| -------- | ------------------------------------------------------------------------ |
+| Frontend | Astro 5 · React 19 · TypeScript 5 · Tailwind CSS 4 · Shadcn/ui           |
+| Backend  | Supabase (PostgreSQL, Auth)                                              |
+| AI       | Openrouter.ai (access to OpenAI, Anthropic, Google Gemini, …)            |
+| Testing  | Vitest · React Testing Library · Playwright · k6 · axe-core · Lighthouse |
+| CI/CD    | GitHub Actions (lint → unit → integration → e2e → build)                 |
+| Hosting  | DigitalOcean (Docker image)                                              |
 
 ---
 
@@ -75,15 +76,41 @@ npm run preview # Serve built site locally
 
 ## Available Scripts
 
-| Script             | Purpose                                  |
-| ------------------ | ---------------------------------------- |
-| `npm run dev`      | Start Astro in development mode with HMR |
-| `npm run build`    | Build the production site                |
-| `npm run preview`  | Preview the built site locally           |
-| `npm run astro`    | Run arbitrary Astro CLI commands         |
-| `npm run lint`     | Lint the codebase                        |
-| `npm run lint:fix` | Lint and automatically fix issues        |
-| `npm run format`   | Format files with Prettier               |
+| Script                    | Purpose                                  |
+| ------------------------- | ---------------------------------------- |
+| `npm run dev`             | Start Astro in development mode with HMR |
+| `npm run build`           | Build the production site                |
+| `npm run preview`         | Preview the built site locally           |
+| `npm run astro`           | Run arbitrary Astro CLI commands         |
+| `npm run lint`            | Lint the codebase                        |
+| `npm run lint:fix`        | Lint and automatically fix issues        |
+| `npm run format`          | Format files with Prettier               |
+| `npm run test`            | Run unit tests in watch mode             |
+| `npm run test:run`        | Run unit tests once                      |
+| `npm run test:watch`      | Run unit tests in watch mode             |
+| `npm run test:ui`         | Run unit tests with UI                   |
+| `npm run test:coverage`   | Run unit tests with coverage             |
+| `npm run test:e2e`        | Run end-to-end tests                     |
+| `npm run test:e2e:ui`     | Run e2e tests with UI                    |
+| `npm run test:e2e:debug`  | Run e2e tests in debug mode              |
+| `npm run test:e2e:headed` | Run e2e tests in headed mode             |
+
+### Testing Setup
+
+**Unit Tests (Vitest + React Testing Library)**
+
+- Run `npm run test:run` for a single test run
+- Run `npm run test:watch` for continuous testing during development
+- Run `npm run test:coverage` to generate coverage reports
+
+**End-to-End Tests (Playwright)**
+
+- Requires a running dev server: `npm run dev`
+- Run `npm run test:e2e` for headless testing
+- Run `npm run test:e2e:headed` to see browser interactions
+- Run `npm run test:e2e:ui` for interactive test debugging
+
+**Note:** E2E tests require Supabase environment variables to be configured. Make sure your `.env` file contains valid Supabase credentials before running E2E tests.
 
 ---
 

@@ -22,3 +22,19 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# playwright reports
+playwright-report/
+playwright-test/
+
+# vitest reports
+coverage/
+
+# eslint reports
+eslint-report/
+
+# test fixtures
+test-fixtures/
+
+# test results
+test-results/
