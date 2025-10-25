@@ -32,8 +32,8 @@ const DEFAULT_TEMPERATURE = 0.7;
 export class OpenRouterService {
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
-  private defaultModel: string;
-  private defaultParams: Partial<ModelParams>;
+  protected defaultModel: string;
+  protected defaultParams: Partial<ModelParams>;
 
   // Exposed for debugging and testing
   public lastRequest: ChatRequestPayload | null = null;
@@ -171,7 +171,7 @@ export class OpenRouterService {
   /**
    * Validate chat messages
    */
-  private validateMessages(messages: ChatMessage[]): void {
+  protected validateMessages(messages: ChatMessage[]): void {
     if (!Array.isArray(messages)) {
       throw new ValidationError("Messages must be an array");
     }
@@ -211,7 +211,7 @@ export class OpenRouterService {
   /**
    * Build request payload from messages and options
    */
-  private buildPayload(messages: ChatMessage[], options?: ChatOptions): ChatRequestPayload {
+  protected buildPayload(messages: ChatMessage[], options?: ChatOptions): ChatRequestPayload {
     const model = options?.model || this.defaultModel;
     const params = { ...this.defaultParams, ...options?.params };
 
@@ -232,7 +232,7 @@ export class OpenRouterService {
   /**
    * Validate request payload
    */
-  private validatePayload(payload: ChatRequestPayload): void {
+  protected validatePayload(payload: ChatRequestPayload): void {
     // Validate model
     if (!payload.model) {
       throw new ValidationError("Model is required");
@@ -274,7 +274,7 @@ export class OpenRouterService {
   /**
    * Handle and validate response
    */
-  private handleResponse(response: ChatCompletion): ChatCompletion {
+  protected handleResponse(response: ChatCompletion): ChatCompletion {
     // Basic validation
     if (!response) {
       throw new ValidationError("Empty response from API");
@@ -323,7 +323,7 @@ export class OpenRouterService {
   /**
    * Redact sensitive information from log metadata
    */
-  private redactSensitiveData(meta: Record<string, unknown>): Record<string, unknown> {
+  protected redactSensitiveData(meta: Record<string, unknown>): Record<string, unknown> {
     const redacted = { ...meta };
 
     // Redact API keys

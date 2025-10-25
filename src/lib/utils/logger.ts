@@ -65,16 +65,20 @@ export class ConsoleLogger implements Logger {
  * No-op logger (silent) - useful for testing or production where logging is disabled
  */
 export class NoopLogger implements Logger {
-  debug(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  debug(_message: string, _meta?: Record<string, unknown>): void {
     // No-op
   }
-  info(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  info(_message: string, _meta?: Record<string, unknown>): void {
     // No-op
   }
-  warn(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  warn(_message: string, _meta?: Record<string, unknown>): void {
     // No-op
   }
-  error(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  error(_message: string, _meta?: Record<string, unknown>): void {
     // No-op
   }
 }

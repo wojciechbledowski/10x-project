@@ -20,7 +20,8 @@ export class NoopRateLimiter implements RateLimiter {
     return true;
   }
 
-  async recordUsage(): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async recordUsage(_tokens?: number): Promise<void> {
     // No-op
   }
 }
