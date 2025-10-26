@@ -31,6 +31,7 @@ function TabNavContent({ deckId, currentPath }: { deckId: string; currentPath?: 
                 : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
             }`}
             aria-current={pathname === tab.href ? "page" : undefined}
+            data-testid={`deck-tab-${tab.href.split("/").pop()}`}
           >
             {tab.name}
           </a>

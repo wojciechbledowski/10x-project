@@ -54,6 +54,7 @@ function HeaderInner({ title, user, theme: initialTheme = "light" }: Omit<Header
           size="icon"
           onClick={toggleTheme}
           aria-label={`${t("common.switchTo")} ${theme === "light" ? t("common.darkMode") : t("common.lightMode")}`}
+          data-testid="theme-toggle-button"
         >
           {theme === "light" ? (
             <Moon className="h-5 w-5" aria-hidden="true" />

@@ -30,16 +30,22 @@ export function LanguageSwitcher({ currentLang }: LanguageSwitcherProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t("common.language_switcher_label")}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.language_switcher_label")}
+          data-testid="language-switcher-button"
+        >
           <Globe className="h-5 w-5" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" data-testid="language-dropdown">
         {Object.keys(languages).map((code) => (
           <DropdownMenuItem
             key={code}
             onClick={() => handleLanguageChange(code as Language)}
             className={currentLang === code ? "bg-accent" : ""}
+            data-testid={`language-option-${code}`}
           >
             {t(`common.language_${code}`)}
             {currentLang === code && <span className="ml-2">✓</span>}

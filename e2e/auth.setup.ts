@@ -1,7 +1,11 @@
 import { test as setup } from "@playwright/test";
 import { expect } from "@playwright/test";
+import { mkdirSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-const authFile = "playwright/.auth/user.json";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const authFile = resolve(__dirname, "../playwright/.auth/user.json");
 
 /**
  * Authentication setup for E2E tests
@@ -54,6 +58,12 @@ setup("authenticate", async ({ page }) => {
   // Verify we're logged in by checking the decks page loads
   await expect(page).toHaveURL(/\/decks/);
 
+  // Create the directory if it doesn't exist
+  console.log("Creating auth directory:", dirname(authFile));
+  mkdirSync(dirname(authFile), { recursive: true });
+
   // Save the authentication state for other tests
+  console.log("Saving auth state to:", authFile);
   await page.context().storageState({ path: authFile });
+  console.log("Auth state saved successfully");
 });

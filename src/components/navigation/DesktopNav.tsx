@@ -52,6 +52,7 @@ function DesktopNavInner({ currentPath }: Omit<DesktopNavProps, "lang">) {
                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             }`}
             aria-current={item.isActive ? "page" : undefined}
+            data-testid={`desktop-nav-${item.href.replace("/", "") || "home"}`}
           >
             <Icon className="h-5 w-5" aria-hidden="true" />
             <span>{item.label}</span>

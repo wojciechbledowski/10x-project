@@ -63,6 +63,14 @@ const getSupabaseClient = () => {
  */
 export async function cleanupTestData() {
   try {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      console.warn("SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set, skipping test data cleanup");
+      return;
+    }
+
     const supabase = getSupabaseClient();
     const testUserId = process.env.E2E_USERNAME_ID;
 
@@ -171,6 +179,44 @@ export const testData = {
     back: "Paris",
   },
 };
+
+/**
+ * Viewport size constants for consistent testing
+ */
+export const VIEWPORTS = {
+  desktop: { width: 1024, height: 768 },
+  mobile: { width: 375, height: 667 }, // iPhone SE size
+} as const;
+
+/**
+ * Verify user is authenticated using storage state (no redirect check needed)
+ */
+export async function verifyAuthenticatedState(page: Page) {
+  await expect(page).not.toHaveURL(/\/auth\/login/);
+}
+
+/**
+ * Setup navigation test with viewport and authentication
+ */
+export async function setupNavigationTest(page: Page, viewport: "desktop" | "mobile" = "desktop") {
+  await page.setViewportSize(VIEWPORTS[viewport]);
+  await page.goto("/decks");
+  await verifyAuthenticatedState(page);
+}
+
+/**
+ * Get navigation locators
+ */
+export function getNavigationLocators(page: Page) {
+  return {
+    desktopNav: page.locator('nav[aria-label="Main navigation"]'),
+    mobileNav: page.locator('nav[aria-label="Mobile navigation"]'),
+    header: page.locator("header"),
+    themeButton: page.locator('[data-testid="theme-toggle-button"]'),
+    languageButton: page.locator('[data-testid="language-switcher-button"]'),
+    userMenu: page.locator('button[aria-label="User menu"]'),
+  };
+}
 
 /**
  * Verify user is authenticated by checking current URL and presence of user-specific elements
@@ -291,7 +337,13 @@ export async function navigateToDeck(page: Page, deckName: string) {
  * Navigate to deck settings page
  */
 export async function navigateToDeckSettings(page: Page) {
-  await page.click('a:has-text("Settings")');
+  // Use test ID for more reliable selection, fallback to text if needed
+  try {
+    await page.click('[data-testid="deck-tab-settings"]');
+  } catch {
+    // Fallback to text selector if test ID is not available
+    await page.click('a:has-text("Settings")');
+  }
   await page.waitForURL(/\/decks\/[^/]+\/settings$/, { timeout: 10000 });
 }
 

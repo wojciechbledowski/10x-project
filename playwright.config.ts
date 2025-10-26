@@ -42,6 +42,8 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         // Use authenticated state from setup project
         storageState: "playwright/.auth/user.json",
+        // Enable touch support for mobile interaction tests
+        hasTouch: true,
       },
       dependencies: ["setup"],
     },

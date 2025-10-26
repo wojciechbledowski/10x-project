@@ -51,6 +51,7 @@ function MobileNavInner({ currentPath }: Omit<MobileNavProps, "lang">) {
                 item.isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
               aria-current={item.isActive ? "page" : undefined}
+              data-testid={`mobile-nav-${item.href.replace("/", "") || "home"}`}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />
               <span>{item.label}</span>
