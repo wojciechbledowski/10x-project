@@ -15,14 +15,18 @@ export function EmptyState({ onCreate }: EmptyStateProps) {
   const { t } = useI18n();
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="mb-6 rounded-full bg-muted p-6">
+    <div className="flex flex-col items-center justify-center py-16 text-center" data-testid="empty-state">
+      <div className="mb-6 rounded-full bg-muted p-6" data-testid="empty-state-icon">
         <Library className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
       </div>
 
-      <h3 className="mb-3 text-xl font-semibold text-foreground">{t("decks.noDeck")}</h3>
+      <h3 className="mb-3 text-xl font-semibold text-foreground" data-testid="empty-state-title">
+        {t("decks.noDeck")}
+      </h3>
 
-      <p className="mb-8 max-w-md text-muted-foreground">{t("decks.learnWithAI")}</p>
+      <p className="mb-8 max-w-md text-muted-foreground" data-testid="empty-state-message">
+        {t("decks.learnWithAI")}
+      </p>
 
       <CreateDeckButton onClick={onCreate} />
     </div>

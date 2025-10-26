@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env.test") });
 
 export default defineConfig({
   testDir: "./e2e",
@@ -26,17 +30,27 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // Setup project that runs first to authenticate
+    {
+      name: "setup",
+      testMatch: "auth.setup.ts",
+    },
+    // Main test projects that depend on setup
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Use authenticated state from setup project
+        storageState: "playwright/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: "npm run dev",
-  //   url: "http://localhost:3000",
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120 * 1000, // 2 minutes timeout
-  // },
+  webServer: {
+    command: "npm run dev:e2e",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes timeout
+  },
 });

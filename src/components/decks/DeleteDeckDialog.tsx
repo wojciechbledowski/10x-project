@@ -64,7 +64,12 @@ function DeleteDeckDialogInner({ deckId }: { deckId: string }) {
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <AlertDialogTrigger asChild>
-          <Button variant="destructive" className="w-full sm:w-auto" disabled={isDeleting}>
+          <Button
+            variant="destructive"
+            className="w-full sm:w-auto"
+            disabled={isDeleting}
+            data-testid="delete-deck-button"
+          >
             {t("settings.deleteDeck")}
           </Button>
         </AlertDialogTrigger>
@@ -92,6 +97,7 @@ function DeleteDeckDialogInner({ deckId }: { deckId: string }) {
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="confirm-delete-deck-button"
             >
               {isDeleting ? t("common.deleting", { defaultValue: "Deleting..." }) : t("settings.deleteDeck")}
             </AlertDialogAction>

@@ -25,10 +25,10 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
   ] as const;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" data-testid="sort-dropdown">
       <ArrowUpDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-40" aria-label={t("decks.sortBy")}>
+        <SelectTrigger className="w-40" aria-label={t("decks.sortBy")} data-testid="sort-select-trigger">
           <SelectValue placeholder={t("decks.sortBy")} />
         </SelectTrigger>
         <SelectContent>

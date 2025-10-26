@@ -43,6 +43,7 @@ export function DeckCard({ deck, onSelect }: DeckCardProps) {
       onKeyPress={handleKeyPress}
       className="rounded-lg border border-border bg-card p-6 transition-all duration-200 hover:shadow-md hover:border-border/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
       aria-label={t("decks.openDeck", { name: deck.name })}
+      data-testid={`deck-card-${deck.id}`}
     >
       <h3 className="mb-3 text-lg font-semibold text-card-foreground line-clamp-2">{deck.name}</h3>
 

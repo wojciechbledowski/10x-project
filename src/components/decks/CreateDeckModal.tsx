@@ -111,13 +111,13 @@ export function CreateDeckModal({ open, onOpenChange, onCreateDeck }: CreateDeck
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" data-testid="create-deck-modal">
         <DialogHeader>
           <DialogTitle>{t("decks.createNewDeck")}</DialogTitle>
           <DialogDescription>{t("decks.deckNameHelp")}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="create-deck-form">
           <div className="space-y-2">
             <label
               htmlFor={nameId}
@@ -136,19 +136,32 @@ export function CreateDeckModal({ open, onOpenChange, onCreateDeck }: CreateDeck
               disabled={isLoading}
               aria-invalid={!!error}
               aria-describedby={error ? errorId : undefined}
+              data-testid="deck-name-input"
             />
             {error && (
-              <p id={errorId} className="text-sm text-destructive" role="alert" aria-live="polite">
+              <p
+                id={errorId}
+                className="text-sm text-destructive"
+                role="alert"
+                aria-live="polite"
+                data-testid="deck-name-error"
+              >
                 {error}
               </p>
             )}
           </div>
 
           <DialogFooter className="sm:justify-end">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={isLoading}
+              data-testid="cancel-create-deck"
+            >
               {t("common.cancel")}
             </Button>
-            <Button type="submit" disabled={isLoading || !name.trim() || !!error}>
+            <Button type="submit" disabled={isLoading || !name.trim() || !!error} data-testid="submit-create-deck">
               {isLoading ? t("decks.creatingDeck") : t("decks.createDeck")}
             </Button>
           </DialogFooter>

@@ -98,10 +98,10 @@ function DeckSettingsFormInner({ deckId }: { deckId: string }) {
   const error = localError || hookError;
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <div className="rounded-lg border border-border bg-card p-6" data-testid="deck-settings-form">
       <h3 className="mb-4 text-lg font-semibold text-card-foreground">{t("settings.deckName")}</h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" data-testid="deck-settings-form-element">
         <div className="space-y-2">
           <Label htmlFor="deckName">{t("settings.deckName")}</Label>
           <Input
@@ -115,15 +115,21 @@ function DeckSettingsFormInner({ deckId }: { deckId: string }) {
             placeholder={t("decks.deckNamePlaceholder")}
             maxLength={255}
             disabled={isUpdating}
+            data-testid="deck-name-input"
           />
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-sm text-destructive" role="alert" data-testid="deck-settings-error">
               {error}
             </p>
           )}
         </div>
 
-        <Button type="submit" disabled={!hasChanges || !isValid || isUpdating} className="w-full sm:w-auto">
+        <Button
+          type="submit"
+          disabled={!hasChanges || !isValid || isUpdating}
+          className="w-full sm:w-auto"
+          data-testid="deck-settings-save-button"
+        >
           {isUpdating ? t("common.saving") : t("common.save")}
         </Button>
       </form>

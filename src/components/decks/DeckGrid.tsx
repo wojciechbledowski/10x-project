@@ -17,7 +17,12 @@ export function DeckGrid({ decks, onSelect }: DeckGridProps) {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="grid" aria-label="Deck collection">
+    <div
+      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      role="grid"
+      aria-label="Deck collection"
+      data-testid="decks-grid"
+    >
       {decks.map((deck) => (
         <div key={deck.id} role="gridcell">
           <DeckCard deck={deck} onSelect={onSelect} />

@@ -22,6 +22,7 @@ export function CreateDeckButton({ onClick, variant = "primary", size = "default
       variant={variant === "primary" ? "default" : "outline"}
       size={size}
       aria-label={t("decks.createDeck")}
+      data-testid="create-deck-button"
     >
       <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
       {t("decks.createDeck")}
