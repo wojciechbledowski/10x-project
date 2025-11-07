@@ -101,18 +101,6 @@ export async function cleanupTestData() {
       console.warn("Failed to cleanup decks:", decksError);
     }
 
-    // Try to delete card generations if table exists
-    try {
-      const { error: generationsError } = await supabase.from("card_generations").delete().eq("user_id", testUserId);
-
-      if (generationsError) {
-        console.warn("Failed to cleanup card generations:", generationsError);
-      }
-    } catch {
-      // Table might not exist, ignore
-      console.log("Card generations table not available for cleanup");
-    }
-
     console.log("Test data cleanup completed");
   } catch (error) {
     console.error("Error during test data cleanup:", error);
