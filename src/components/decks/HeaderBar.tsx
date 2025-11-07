@@ -1,9 +1,8 @@
 import React from "react";
-import { I18nProvider, useI18n } from "@/lib/i18n/react";
+import { useI18n } from "@/lib/i18n/react";
 import { SortDropdown } from "./SortDropdown";
 import { CreateDeckButton } from "./CreateDeckButton";
 import type { SortKey } from "../../types";
-import type { Language } from "@/lib/i18n/config";
 
 interface HeaderBarProps {
   sort: SortKey;

@@ -6,6 +6,7 @@ interface StatsPanelProps {
   lang: Language;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function StatsPanelInner({ deckId }: { deckId: string }) {
   const { t } = useI18n();
 
