@@ -209,11 +209,24 @@ test.describe("Deck Management", () => {
       const deckName = `Settings Test Deck ${generateTestId()}`;
       await createDeck(page, deckName);
 
+      // Verify deck was created and appears in list
+      await expect(page.locator('[data-testid="decks-grid"]')).toContainText(deckName);
+
       // Navigate to the deck detail page
       await navigateToDeck(page, deckName);
 
+      // Verify we're on the deck detail page
+      await expect(page).toHaveURL(/\/decks\/[^/]+(?:\/.*)?$/);
+
+      // Check if settings tab is visible before clicking
+      const settingsTab = page.locator('[data-testid="deck-tab-settings"]');
+      await expect(settingsTab).toBeVisible({ timeout: 5000 });
+
       // Navigate to settings page
       await navigateToDeckSettings(page);
+
+      // Verify we're on the settings page
+      await expect(page).toHaveURL(/\/decks\/[^/]+\/settings$/);
 
       // Wait for the settings form to become visible
       await expect(page.locator('[data-testid="deck-settings-form"]')).toBeVisible({ timeout: 5000 });
