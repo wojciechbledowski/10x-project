@@ -56,11 +56,21 @@ const reactConfig = tseslint.config({
   },
 });
 
+const astroScriptConfig = tseslint.config({
+  // Define the configuration for `<script>` tag.
+  // Script in `<script>` is assigned a virtual file name with the `.js` extension.
+  files: ["**/*.astro/*.js", "*.astro/*.js", "**/*.astro/*.ts", "*.astro/*.ts"],
+  rules: {
+    "prettier/prettier": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  astroScriptConfig
 );
