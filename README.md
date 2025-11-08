@@ -28,7 +28,30 @@ Paste up to **10 000 characters** of text, let the AI create question–answer c
 | AI       | Openrouter.ai (access to OpenAI, Anthropic, Google Gemini, …)            |
 | Testing  | Vitest · React Testing Library · Playwright · k6 · axe-core · Lighthouse |
 | CI/CD    | GitHub Actions (lint → unit → integration → e2e → build)                 |
-| Hosting  | DigitalOcean (Docker image)                                              |
+| Hosting  | Cloudflare Pages                                                         |
+
+---
+
+## Deployments & Releases
+
+The project utilizes GitHub Actions for its CI/CD pipeline, ensuring code quality and streamlined deployments.
+
+### Pull Request Checks
+Upon every pull request to the `master` branch, the following checks are automatically performed:
+
+1.  **Lint Code:** Runs ESLint to enforce code style and identify potential issues.
+2.  **Unit Tests:** Executes Vitest unit tests with coverage reporting.
+3.  **E2E Tests:** Runs Playwright end-to-end tests against a dedicated integration environment, ensuring core functionalities work as expected. These tests require Supabase environment variables to be securely configured as GitHub Secrets.
+4.  **Status Comment:** Posts a comment on the pull request summarizing the results of all checks. If all checks pass, the PR is marked as ready for review; otherwise, it indicates failures that need to be addressed.
+
+### Master Branch CI
+After merging to the `master` branch, the same linting, unit testing, and E2E testing pipeline runs automatically to ensure the merged code maintains quality standards.
+
+### Manual Deployment
+Deployment is triggered manually via workflow dispatch, allowing selection of target environment (production, staging, etc.). The deployment process includes:
+- All quality checks (linting and unit tests)
+- Production build
+- Deployment to Cloudflare Pages
 
 ---
 
