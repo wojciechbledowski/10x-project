@@ -37,6 +37,7 @@ Paste up to **10 000 characters** of text, let the AI create question–answer c
 The project utilizes GitHub Actions for its CI/CD pipeline, ensuring code quality and streamlined deployments.
 
 ### Pull Request Checks
+
 Upon every pull request to the `master` branch, the following checks are automatically performed:
 
 1.  **Lint Code:** Runs ESLint to enforce code style and identify potential issues.
@@ -45,10 +46,13 @@ Upon every pull request to the `master` branch, the following checks are automat
 4.  **Status Comment:** Posts a comment on the pull request summarizing the results of all checks. If all checks pass, the PR is marked as ready for review; otherwise, it indicates failures that need to be addressed.
 
 ### Master Branch CI
+
 After merging to the `master` branch, the same linting, unit testing, and E2E testing pipeline runs automatically to ensure the merged code maintains quality standards.
 
 ### Manual Deployment
+
 Deployment is triggered manually via workflow dispatch, allowing selection of target environment (production, staging, etc.). The deployment process includes:
+
 - All quality checks (linting and unit tests)
 - Production build
 - Deployment to Cloudflare Pages
@@ -78,14 +82,20 @@ Create a `.env` file and add the following variables:
 
 ```dotenv
 SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_ANON_KEY=public-anon-key
+SUPABASE_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 OPENROUTER_API_KEY=xxxxxxxxxxxxxxxx
 ```
+
+**Note:** These environment variables are managed through Astro's type-safe `astro:env` system, which ensures proper handling in serverless environments like Cloudflare Pages.
+
+**⚠️ Important for `@astrojs/cloudflare` adapter:** Unlike `@astrojs/node`, the Cloudflare adapter loads ALL `.env*` files without filtering by mode. This means `.env.test` won't automatically override `.env` when using `--mode test`. To work with a local Supabase instance, create a `.env.localdev` file with local credentials and use `npm run dev:local`.
 
 ### 3 • Launch dev server
 
 ```bash
-npm run dev # http://localhost:3000
+npm run dev:local # Use local Supabase (requires .env.local)
+npm run dev:e2e # For E2E tests (uses .env.test)
 ```
 
 ### 4 • Production build

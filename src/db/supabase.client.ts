@@ -1,6 +1,7 @@
 import type { AstroCookies } from "astro";
 import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import type { Database } from "./database.types";
+import { SUPABASE_URL, SUPABASE_KEY, SUPABASE_SERVICE_ROLE_KEY } from "astro:env/server";
 
 /**
  * Cookie options for Supabase auth
@@ -31,7 +32,7 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
  * @returns Configured Supabase server client
  */
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+  const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
     cookieOptions,
     cookies: {
       getAll() {
@@ -58,8 +59,8 @@ export type SupabaseServerClient = ReturnType<typeof createSupabaseServerInstanc
  */
 export const createSupabaseServiceClient = (context: { headers: Headers; cookies: AstroCookies }) => {
   const supabase = createServerClient<Database>(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY, // Service role key for admin operations
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY, // Service role key for admin operations
     {
       cookieOptions,
       cookies: {
