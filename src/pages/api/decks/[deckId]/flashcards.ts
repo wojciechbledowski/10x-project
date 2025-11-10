@@ -1,5 +1,5 @@
 import { createSupabaseServerInstance } from "@/db/supabase.client";
-import { DeckIdSchema, listDeckFlashcardsQuerySchema } from "@/lib/decks/schemas";
+import { DeckIdSchema, listDeckFlashcardsQuerySchema } from "@/lib/flashcards/schemas";
 import { ConsoleLogger } from "@/lib/openrouter";
 import { FlashcardService } from "@/lib/services/flashcardService";
 import { createErrorResponse, createJsonResponse } from "@/lib/utils/apiResponse";

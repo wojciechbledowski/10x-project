@@ -12,22 +12,24 @@ import {
   deckIdParamsSchema,
   createDeckBodySchema,
   updateDeckBodySchema,
-  listDeckFlashcardsQuerySchema,
   listDecksQuerySchema,
-  createFlashcardBodySchema,
-  updateFlashcardBodySchema,
-  flashcardIdParamsSchema,
-  FlashcardSourceSchema,
   type DeleteDeckParams,
   type DeckIdParams,
   type UpdateDeckBody,
   type CreateDeckBody,
-  type ListDeckFlashcardsQueryParams,
   type ListDecksQueryParams,
+} from "../schemas";
+import {
+  listDeckFlashcardsQuerySchema,
+  createFlashcardBodySchema,
+  flashcardIdParamsSchema,
+  updateFlashcardBodySchema,
+  FlashcardSourceSchema,
+  type ListDeckFlashcardsQueryParams,
   type CreateFlashcardBody,
   type UpdateFlashcardBody,
   type FlashcardIdParams,
-} from "../schemas";
+} from "../../flashcards/schemas";
 
 describe("Deck Schemas", () => {
   describe("DeckIdSchema", () => {
@@ -51,7 +53,9 @@ describe("Deck Schemas", () => {
       invalidUUIDs.forEach((uuid) => {
         const result = DeckIdSchema.safeParse(uuid);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe("deckId must be a valid UUID");
+        expect(result.error?.issues[0]?.message).toBe(
+          "deckId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+        );
       });
     });
 
@@ -96,7 +100,9 @@ describe("Deck Schemas", () => {
 
       const result = deleteDeckParamsSchema.safeParse(invalidParams);
       expect(result.success).toBe(false);
-      expect(result.error?.issues[0]?.message).toBe("deckId must be a valid UUID");
+      expect(result.error?.issues[0]?.message).toBe(
+        "deckId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+      );
     });
   });
 
@@ -118,7 +124,9 @@ describe("Deck Schemas", () => {
 
       const result = deckIdParamsSchema.safeParse(invalidParams);
       expect(result.success).toBe(false);
-      expect(result.error?.issues[0]?.message).toBe("deckId must be a valid UUID");
+      expect(result.error?.issues[0]?.message).toBe(
+        "deckId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+      );
     });
   });
 
@@ -397,7 +405,9 @@ describe("Deck Schemas", () => {
         const params = { deckId: "550e8400-e29b-41d4-a716-446655440000", sort };
         const result = listDeckFlashcardsQuerySchema.safeParse(params);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe("Invalid sort field");
+        expect(result.error?.issues[0]?.message).toBe(
+          "sort must be one of: created_at, updated_at, next_review_at (prefix with '-' for descending order)"
+        );
       });
     });
 
@@ -568,7 +578,9 @@ describe("Deck Schemas", () => {
 
         const result = createFlashcardBodySchema.safeParse(invalidData);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe("deckId must be a valid UUID");
+        expect(result.error?.issues[0]?.message).toBe(
+          "deckId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+        );
       });
 
       it("should reject invalid source value", () => {
@@ -705,7 +717,9 @@ describe("Deck Schemas", () => {
 
         const result = updateFlashcardBodySchema.safeParse(invalidData);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe("deckId must be a valid UUID");
+        expect(result.error?.issues[0]?.message).toBe(
+          "deckId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+        );
       });
 
       it("should reject invalid source value", () => {
@@ -747,7 +761,9 @@ describe("Deck Schemas", () => {
 
         const result = flashcardIdParamsSchema.safeParse(invalidParams);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe("cardId must be a valid UUID");
+        expect(result.error?.issues[0]?.message).toBe(
+          "cardId must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+        );
       });
 
       it("should reject missing cardId", () => {
