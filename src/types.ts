@@ -1,4 +1,4 @@
-import type { Database, Enums } from "./db/database.types";
+import type { Database, Enums, Json } from "./db/database.types";
 
 // ============================================================================
 // THEME TYPES
@@ -181,7 +181,7 @@ export interface AiGenerationResponse {
   modelVersion: string | null;
   temperature: number | null;
   topP: number | null;
-  config: Record<string, unknown>;
+  config: Json;
   promptTokens: number | null;
   completionTokens: number | null;
   errorMessage: string | null;
