@@ -71,6 +71,33 @@ export const createMockFlashcard = (overrides = {}) => ({
   ...overrides,
 });
 
+// Helper to create mock review data
+export const createMockReview = (overrides = {}) => ({
+  id: "review-123",
+  flashcard_id: "card-123",
+  user_id: "user-123",
+  quality: 4,
+  latency_ms: 2500,
+  created_at: "2025-01-01T00:00:00.000Z",
+  ...overrides,
+});
+
+// Helper to create mock review response
+export const createMockReviewResponse = (overrides = {}) => ({
+  id: "review-123",
+  flashcardId: "card-123",
+  quality: 4,
+  createdAt: "2025-01-01T00:00:00.000Z",
+  flashcard: {
+    id: "card-123",
+    easeFactor: 2.6,
+    intervalDays: 6,
+    repetition: 3,
+    nextReviewAt: "2025-01-07T00:00:00.000Z",
+  },
+  ...overrides,
+});
+
 // Helper to reset all mocks
 export const resetAllMocks = (mockClient: MockSupabaseClient) => {
   Object.values(mockClient).forEach((mock) => {
