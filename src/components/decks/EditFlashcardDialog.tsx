@@ -10,13 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { I18nProvider, useI18n } from "@/lib/i18n/react";
+import { useI18n } from "@/lib/i18n/react";
 import type { FlashcardVM } from "@/types";
-import type { Language } from "@/lib/i18n/config";
 
 interface EditFlashcardDialogProps {
   card: FlashcardVM | null;
-  lang: Language;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onSave: (cardId: string, updates: { front: string; back: string }) => Promise<void>;
@@ -164,10 +162,6 @@ function EditFlashcardDialogInner({
   );
 }
 
-export function EditFlashcardDialog({ card, lang, isOpen, setIsOpen, onSave }: EditFlashcardDialogProps) {
-  return (
-    <I18nProvider lang={lang}>
-      <EditFlashcardDialogInner card={card} isOpen={isOpen} setIsOpen={setIsOpen} onSave={onSave} />
-    </I18nProvider>
-  );
+export function EditFlashcardDialog({ card, isOpen, setIsOpen, onSave }: EditFlashcardDialogProps) {
+  return <EditFlashcardDialogInner card={card} isOpen={isOpen} setIsOpen={setIsOpen} onSave={onSave} />;
 }

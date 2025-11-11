@@ -459,7 +459,7 @@ export class FlashcardService {
     // Ensure source has a default value
     const source = data.source || "manual";
 
-    // Insert flashcard with defaults (SM-2 values handled by database constraints)
+    // Insert flashcard with SM-2 defaults
     const { data: flashcard, error } = await this.supabase
       .from("flashcards")
       .insert({
@@ -468,7 +468,11 @@ export class FlashcardService {
         back: data.back,
         deck_id: data.deckId || null,
         source,
-        // SM-2 defaults are handled by database constraints
+        // SM-2 algorithm defaults
+        ease_factor: 2.5,
+        interval_days: 1,
+        repetition: 0,
+        next_review_at: null,
       })
       .select()
       .single();

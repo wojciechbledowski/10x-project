@@ -15,7 +15,7 @@ vi.mock("@/lib/i18n/react", () => ({
         "flashcards.back": "Back",
         "flashcards.source.manual": "Manual",
         "flashcards.source.ai": "AI Generated",
-        "flashcards.source.ai_edited": "AI Edited",
+        "flashcards.source.aiEdited": "AI Edited",
         "common.edit": "Edit",
       };
       return translations[key] || key;

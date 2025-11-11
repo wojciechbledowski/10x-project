@@ -229,7 +229,9 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
     logger.error("Failed to create flashcard", {
       userId: locals.user.id,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : error,
+      errorType: typeof error,
+      errorKeys: error && typeof error === "object" ? Object.keys(error) : null,
     });
 
     return createErrorResponse(500, {

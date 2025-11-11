@@ -1,11 +1,11 @@
 ---
-import type { DeckDetailResponse } from "@/types";
+import type { DeckResponse } from "@/types";
 import Layout from "@/layouts/Layout.astro";
 import { DeckService } from "@/lib/services/deckService";
 import TabNav from "@/components/decks/TabNav";
 
 interface Props {
-  deck?: DeckDetailResponse;
+  deck?: DeckResponse;
 }
 
 const { deckId } = Astro.params;

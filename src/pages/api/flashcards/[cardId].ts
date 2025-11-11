@@ -265,7 +265,9 @@ export const PATCH: APIRoute = async ({ params, request, locals, cookies }) => {
     logger.error("Failed to update flashcard", {
       userId: locals.user.id,
       cardId,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : error,
+      errorType: typeof error,
+      errorKeys: error && typeof error === "object" ? Object.keys(error) : null,
     });
 
     return createErrorResponse(500, {

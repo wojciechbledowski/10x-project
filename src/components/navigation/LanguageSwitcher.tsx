@@ -33,7 +33,7 @@ export function LanguageSwitcher({ currentLang }: LanguageSwitcherProps) {
         <Button
           variant="ghost"
           size="icon"
-          aria-label={t("common.language_switcher_label")}
+          aria-label={t("common.languageSwitcherLabel")}
           data-testid="language-switcher-button"
         >
           <Globe className="h-5 w-5" aria-hidden="true" />

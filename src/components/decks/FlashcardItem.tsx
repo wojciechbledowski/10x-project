@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
-import { I18nProvider, useI18n } from "@/lib/i18n/react";
+import { useI18n } from "@/lib/i18n/react";
 import type { FlashcardVM } from "@/types";
-import type { Language } from "@/lib/i18n/config";
 
 interface FlashcardItemProps {
   card: FlashcardVM;
-  lang: Language;
   onEdit: (card: FlashcardVM) => void;
 }
 
@@ -18,7 +16,7 @@ function FlashcardItemInner({ card, onEdit }: { card: FlashcardVM; onEdit: (card
       manual: t("flashcards.source.manual"),
       ai: t("flashcards.source.ai"),
       ai_generated: t("flashcards.source.ai"),
-      ai_edited: t("flashcards.source.ai_edited"),
+      ai_edited: t("flashcards.source.aiEdited"),
     };
 
     const badgeClasses = {
@@ -61,10 +59,6 @@ function FlashcardItemInner({ card, onEdit }: { card: FlashcardVM; onEdit: (card
   );
 }
 
-export function FlashcardItem({ card, lang, onEdit }: FlashcardItemProps) {
-  return (
-    <I18nProvider lang={lang}>
-      <FlashcardItemInner card={card} onEdit={onEdit} />
-    </I18nProvider>
-  );
+export function FlashcardItem({ card, onEdit }: FlashcardItemProps) {
+  return <FlashcardItemInner card={card} onEdit={onEdit} />;
 }

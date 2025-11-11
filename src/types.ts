@@ -29,14 +29,7 @@ export interface DeckResponse {
   id: string;
   name: string;
   createdAt: string;
-}
-
-/**
- * Response DTO for deck detail with card count
- * GET /decks/{deckId}
- */
-export interface DeckDetailResponse extends DeckResponse {
-  cardCount: number; // Computed field
+  totalCards: number;
 }
 
 /**
@@ -486,4 +479,74 @@ export interface DeckStatsVM {
   newTodayCount: number;
   totalCards: number;
   easeDistribution: { ease: number; count: number }[];
+}
+
+// ============================================================================
+// GENERATED CARDS REVIEW VIEW TYPES
+// ============================================================================
+
+/**
+ * Status of a card in the review process
+ */
+export type CardStatus = "pending" | "accepted" | "edited" | "deleted";
+
+/**
+ * View-model for cards being reviewed in the generated cards modal
+ */
+export interface ReviewCardVM {
+  id: string;
+  front: string;
+  back: string;
+  source: FlashcardSource;
+  status: CardStatus;
+  isEdited: boolean;
+  originalFront: string;
+  originalBack: string;
+}
+
+/**
+ * Props for the main GeneratedCardsReviewModal component
+ */
+export interface GeneratedCardsReviewModalProps {
+  batchId: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (acceptedCards: FlashcardResponse[]) => void;
+}
+
+/**
+ * Props for the StepperNavigation component
+ */
+export interface StepperNavigationProps {
+  currentStep: number;
+  totalSteps: number;
+  onStepChange: (step: number) => void;
+  cardStatuses: CardStatus[];
+}
+
+/**
+ * Props for the CardReviewContent component
+ */
+export interface CardReviewContentProps {
+  card: ReviewCardVM;
+  isFlipped: boolean;
+  isEditing: boolean;
+  onFlip: () => void;
+  onEditToggle: () => void;
+  onContentChange: (side: "front" | "back", content: string) => void;
+  onSave: () => Promise<void>;
+  validationErrors: { front?: string; back?: string };
+}
+
+/**
+ * Props for the CardActions component
+ */
+export interface CardActionsProps {
+  cardId: string;
+  status: CardStatus;
+  isEditing: boolean;
+  onAccept: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  isProcessing: boolean;
 }

@@ -2,7 +2,7 @@ import type { SupabaseServerClient } from "../../db/supabase.client";
 import type { FlashcardSource } from "../../types";
 
 export interface CreateEventParams {
-  action: "delete" | "edit" | "create";
+  action: "delete" | "edit" | "create" | "accept";
   flashcardId: string;
   source: FlashcardSource;
   userId: string;

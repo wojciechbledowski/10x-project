@@ -5,7 +5,10 @@ import { I18nProvider, useI18n } from "@/lib/i18n/react";
 import { useFlashcards } from "@/components/hooks/useFlashcards";
 import { FlashcardItem } from "./FlashcardItem";
 import { EditFlashcardDialog } from "./EditFlashcardDialog";
-import type { FlashcardVM } from "@/types";
+import { CreateFlashcardDialog } from "./CreateFlashcardDialog";
+import { GenerateFlashcardsDialog } from "./GenerateFlashcardsDialog";
+import { GeneratedCardsReviewModal } from "./GeneratedCardsReviewModal";
+import type { FlashcardVM, FlashcardResponse } from "@/types";
 import type { Language } from "@/lib/i18n/config";
 
 interface FlashcardListProps {
@@ -44,12 +47,15 @@ function LoadMoreTrigger({ onLoadMore, isLoading }: { onLoadMore: () => void; is
   return <div ref={triggerRef} className="h-4" />;
 }
 
-function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }) {
+function FlashcardListInner({ deckId }: { deckId: string }) {
   const { t } = useI18n();
-  const { flashcards, isLoading, isLoadingMore, error, hasMore, loadMore, updateFlashcard } = useFlashcards(deckId);
+  const { flashcards, isLoading, isLoadingMore, error, hasMore, loadMore, createFlashcard, updateFlashcard, refresh } =
+    useFlashcards(deckId);
 
   const [editingCard, setEditingCard] = useState<FlashcardVM | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [reviewBatchId, setReviewBatchId] = useState<string | null>(null);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const handleEdit = (card: FlashcardVM) => {
     setEditingCard(card);
@@ -58,6 +64,43 @@ function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }
 
   const handleSaveEdit = async (cardId: string, updates: { front: string; back: string }) => {
     await updateFlashcard(cardId, updates);
+  };
+
+  const handleSaveCreate = async (front: string, back: string) => {
+    await createFlashcard(front, back);
+  };
+
+  const handleGenerationComplete = (batchId: string) => {
+    setReviewBatchId(batchId);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewComplete = async (acceptedCards: FlashcardResponse[]) => {
+    // Save the accepted cards via API
+    if (acceptedCards.length > 0) {
+      const response = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(acceptedCards),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save flashcards");
+      }
+    }
+
+    setIsReviewModalOpen(false);
+    setReviewBatchId(null);
+
+    // Refresh the flashcards list to show newly added cards
+    await refresh();
+  };
+
+  const handleReviewClose = () => {
+    setIsReviewModalOpen(false);
+    setReviewBatchId(null);
   };
 
   if (isLoading) {
@@ -109,10 +152,10 @@ function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }
             defaultValue: "Create your first flashcard to start learning.",
           })}
         </p>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          {t("flashcards.addCard")}
-        </Button>
+        <div className="flex gap-2 justify-center">
+          <CreateFlashcardDialog deckId={deckId} onSave={handleSaveCreate} />
+          <GenerateFlashcardsDialog deckId={deckId} onGenerationComplete={handleGenerationComplete} />
+        </div>
       </div>
     );
   }
@@ -121,20 +164,28 @@ function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }
     <>
       {/* Flashcards Actions */}
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{t("flashcards.count", { count: flashcards.length })}</p>
+        <p className="text-sm text-muted-foreground">
+          {(() => {
+            const count = flashcards.length;
+            if (count === 1) {
+              return t("flashcards.count_one", { count });
+            } else if (count >= 2 && count <= 4) {
+              return t("flashcards.count_few", { count });
+            } else {
+              return t("flashcards.count_many", { count });
+            }
+          })()}
+        </p>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("flashcards.addCard")}
-          </Button>
-          <Button>{t("flashcards.generateFlashcards")}</Button>
+          <CreateFlashcardDialog deckId={deckId} onSave={handleSaveCreate} />
+          <GenerateFlashcardsDialog deckId={deckId} onGenerationComplete={handleGenerationComplete} />
         </div>
       </div>
 
       {/* Flashcards List */}
       <div className="space-y-4">
         {flashcards.map((card) => (
-          <FlashcardItem key={card.id} card={card} lang={lang} onEdit={handleEdit} />
+          <FlashcardItem key={card.id} card={card} onEdit={handleEdit} />
         ))}
 
         {/* Load More Trigger */}
@@ -144,11 +195,20 @@ function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }
       {/* Edit Dialog */}
       <EditFlashcardDialog
         card={editingCard}
-        lang={lang}
         isOpen={isEditDialogOpen}
         setIsOpen={setIsEditDialogOpen}
         onSave={handleSaveEdit}
       />
+
+      {/* Review Generated Cards Modal */}
+      {reviewBatchId && (
+        <GeneratedCardsReviewModal
+          batchId={reviewBatchId}
+          isOpen={isReviewModalOpen}
+          onClose={handleReviewClose}
+          onComplete={handleReviewComplete}
+        />
+      )}
     </>
   );
 }
@@ -156,7 +216,7 @@ function FlashcardListInner({ deckId, lang }: { deckId: string; lang: Language }
 export function FlashcardList({ deckId, lang }: FlashcardListProps) {
   return (
     <I18nProvider lang={lang}>
-      <FlashcardListInner deckId={deckId} lang={lang} />
+      <FlashcardListInner deckId={deckId} />
     </I18nProvider>
   );
 }

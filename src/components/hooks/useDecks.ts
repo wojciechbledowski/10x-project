@@ -47,7 +47,7 @@ export function useDecks() {
       const deckVMs: DeckCardVM[] = data.data.map((deck: DeckResponse) => ({
         id: deck.id,
         name: deck.name,
-        totalCards: 0, // TODO: Add card count to API response
+        totalCards: deck.totalCards,
         dueCards: 0, // TODO: Add due cards calculation
       }));
 
@@ -112,7 +112,7 @@ export function useDecks() {
       const realDeck: DeckCardVM = {
         id: newDeck.id,
         name: newDeck.name,
-        totalCards: 0, // TODO: Add card count to API response
+        totalCards: newDeck.totalCards,
         dueCards: 0,
       };
 

@@ -5,7 +5,7 @@ import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { DeckService } from "../../../lib/services/deckService";
 import { createErrorResponse, createJsonResponse } from "../../../lib/utils/apiResponse";
 import { ConsoleLogger } from "../../../lib/utils/logger";
-import type { DeckDetailResponse, DeckResponse, UpdateDeckRequest } from "../../../types";
+import type { DeckResponse, UpdateDeckRequest } from "../../../types";
 
 export const prerender = false;
 
@@ -55,7 +55,7 @@ export const GET: APIRoute = async ({ params, locals, cookies, request }) => {
     }
 
     logger.info("Deck detail retrieved", { deckId, userId: locals.user.id });
-    return createJsonResponse<DeckDetailResponse>(200, deck);
+    return createJsonResponse<DeckResponse>(200, deck);
   } catch (error) {
     logger.error("Failed to retrieve deck detail", {
       deckId,

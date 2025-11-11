@@ -12,6 +12,7 @@ describe("useDecks", () => {
     id: "deck-123",
     name: "Test Deck",
     createdAt: "2025-01-01T00:00:00.000Z",
+    totalCards: 0,
   };
 
   const mockDecksListResponse: DecksListResponse = {
@@ -142,6 +143,7 @@ describe("useDecks", () => {
         id: "deck-456",
         name: "New Deck",
         createdAt: "2025-01-02T00:00:00.000Z",
+        totalCards: 0,
       };
 
       fetchMock.mockResolvedValueOnce({

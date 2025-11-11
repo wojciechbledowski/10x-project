@@ -1,11 +1,5 @@
 import type { SupabaseServerClient } from "../../db/supabase.client";
-import type {
-  CreateDeckRequest,
-  DeckDetailResponse,
-  DeckResponse,
-  DecksListResponse,
-  UpdateDeckRequest,
-} from "../../types";
+import type { CreateDeckRequest, DeckResponse, DecksListResponse, UpdateDeckRequest } from "../../types";
 import type { ListDecksQueryParams } from "../decks/schemas";
 
 export type SoftDeleteDeckOutcome =
@@ -16,7 +10,7 @@ export type SoftDeleteDeckOutcome =
 export class DeckService {
   constructor(private readonly supabase: SupabaseServerClient) {}
 
-  async getDeckDetail(deckId: string): Promise<DeckDetailResponse | null> {
+  async getDeckDetail(deckId: string): Promise<DeckResponse | null> {
     const { data, error } = await this.supabase
       .from("decks")
       .select(
@@ -53,7 +47,7 @@ export class DeckService {
       id: deck.id,
       name: deck.name,
       createdAt: deck.created_at,
-      cardCount,
+      totalCards: cardCount,
     };
   }
 
@@ -77,6 +71,7 @@ export class DeckService {
       id: data.id,
       name: data.name,
       createdAt: new Date(data.created_at).toISOString(),
+      totalCards: 0, // New decks start with 0 cards
     };
   }
 
@@ -97,10 +92,22 @@ export class DeckService {
     }
 
     if (data) {
+      // Get current card count before soft delete
+      const { data: cardCountData, error: cardCountError } = await this.supabase
+        .from("flashcards")
+        .select("count", { count: "exact", head: true })
+        .eq("deck_id", deckId)
+        .is("deleted_at", null);
+
+      if (cardCountError) {
+        throw cardCountError;
+      }
+
       const deck: DeckResponse = {
         id: data.id,
         name: data.name,
         createdAt: new Date(data.created_at).toISOString(),
+        totalCards: cardCountData?.[0]?.count ?? 0,
       };
 
       return { status: "deleted", deck };
@@ -140,9 +147,18 @@ export class DeckService {
 
     const { data, error, count } = await this.supabase
       .from("decks")
-      .select("id, name, created_at", { count: "exact" })
+      .select(
+        `
+        id,
+        name,
+        created_at,
+        flashcards!inner(count)
+      `,
+        { count: "exact" }
+      )
       .eq("user_id", userId)
       .is("deleted_at", null)
+      .is("flashcards.deleted_at", null)
       .order(orderColumn, { ascending: orderAscending })
       .range(from, to);
 
@@ -150,13 +166,22 @@ export class DeckService {
       throw error;
     }
 
-    const deckRows = (data ?? []) as { id: string; name: string; created_at: string }[];
+    const deckRows = (data ?? []) as {
+      id: string;
+      name: string;
+      created_at: string;
+      flashcards?: { count: number | null }[] | null;
+    }[];
 
-    const deckResponses: DeckResponse[] = deckRows.map((deck) => ({
-      id: deck.id,
-      name: deck.name,
-      createdAt: new Date(deck.created_at).toISOString(),
-    }));
+    const deckResponses: DeckResponse[] = deckRows.map((deck) => {
+      const cardCount = deck.flashcards?.[0]?.count ?? 0;
+      return {
+        id: deck.id,
+        name: deck.name,
+        createdAt: new Date(deck.created_at).toISOString(),
+        totalCards: cardCount,
+      };
+    });
 
     const totalCount = count ?? deckResponses.length;
     const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / pageSize);
@@ -203,10 +228,22 @@ export class DeckService {
     }
 
     if (Object.keys(updatePayload).length === 0) {
+      // Need to fetch current card count for unchanged decks
+      const { data: cardCountData, error: cardCountError } = await this.supabase
+        .from("flashcards")
+        .select("count", { count: "exact", head: true })
+        .eq("deck_id", deckId)
+        .is("deleted_at", null);
+
+      if (cardCountError) {
+        throw cardCountError;
+      }
+
       return {
         id: existingDeck.id,
         name: existingDeck.name,
         createdAt: new Date(existingDeck.created_at).toISOString(),
+        totalCards: cardCountData?.[0]?.count ?? 0,
       };
     }
 
@@ -226,10 +263,22 @@ export class DeckService {
       return null;
     }
 
+    // Fetch current card count after update
+    const { data: cardCountData, error: cardCountError } = await this.supabase
+      .from("flashcards")
+      .select("count", { count: "exact", head: true })
+      .eq("deck_id", deckId)
+      .is("deleted_at", null);
+
+    if (cardCountError) {
+      throw cardCountError;
+    }
+
     return {
       id: updatedDeck.id,
       name: updatedDeck.name,
       createdAt: new Date(updatedDeck.created_at).toISOString(),
+      totalCards: cardCountData?.[0]?.count ?? 0,
     };
   }
 }

@@ -8,6 +8,7 @@ interface UseFlashcardsResult {
   error: string | null;
   hasMore: boolean;
   loadMore: () => void;
+  createFlashcard: (front: string, back: string) => Promise<void>;
   updateFlashcard: (cardId: string, updates: { front?: string; back?: string }) => Promise<void>;
   refresh: () => void;
 }
@@ -77,6 +78,13 @@ export function useFlashcards(deckId: string): UseFlashcardsResult {
     fetchFlashcards(nextPage, true).finally(() => setIsLoadingMore(false));
   }, [hasMore, isLoadingMore, page, fetchFlashcards]);
 
+  // Refresh flashcards (useful after adding new cards)
+  const refresh = useCallback(() => {
+    setIsLoading(true);
+    setPage(1);
+    fetchFlashcards(1, false).finally(() => setIsLoading(false));
+  }, [fetchFlashcards]);
+
   // Update flashcard with optimistic updates
   const updateFlashcard = useCallback(
     async (cardId: string, updates: { front?: string; back?: string }) => {
@@ -115,12 +123,31 @@ export function useFlashcards(deckId: string): UseFlashcardsResult {
     [flashcards]
   );
 
-  // Refresh flashcards (useful after adding new cards)
-  const refresh = useCallback(() => {
-    setIsLoading(true);
-    setPage(1);
-    fetchFlashcards(1, false).finally(() => setIsLoading(false));
-  }, [fetchFlashcards]);
+  // Create new flashcard
+  const createFlashcard = useCallback(
+    async (front: string, back: string) => {
+      const response = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          front,
+          back,
+          deckId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Failed to create flashcard");
+      }
+
+      // Refresh to show the new card
+      await refresh();
+    },
+    [deckId, refresh]
+  );
 
   return {
     flashcards,
@@ -129,6 +156,7 @@ export function useFlashcards(deckId: string): UseFlashcardsResult {
     error,
     hasMore,
     loadMore,
+    createFlashcard,
     updateFlashcard,
     refresh,
   };
