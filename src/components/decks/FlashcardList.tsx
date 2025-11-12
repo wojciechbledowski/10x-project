@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { I18nProvider, useI18n } from "@/lib/i18n/react";
 import { useFlashcards } from "@/components/hooks/useFlashcards";
 import { FlashcardItem } from "./FlashcardItem";
@@ -49,8 +50,18 @@ function LoadMoreTrigger({ onLoadMore, isLoading }: { onLoadMore: () => void; is
 
 function FlashcardListInner({ deckId }: { deckId: string }) {
   const { t } = useI18n();
-  const { flashcards, isLoading, isLoadingMore, error, hasMore, loadMore, createFlashcard, updateFlashcard, refresh } =
-    useFlashcards(deckId);
+  const {
+    flashcards,
+    isLoading,
+    isLoadingMore,
+    error,
+    hasMore,
+    loadMore,
+    createFlashcard,
+    updateFlashcard,
+    deleteFlashcard,
+    refresh,
+  } = useFlashcards(deckId);
 
   const [editingCard, setEditingCard] = useState<FlashcardVM | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -68,6 +79,17 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
 
   const handleSaveCreate = async (front: string, back: string) => {
     await createFlashcard(front, back);
+  };
+
+  const handleDelete = async (cardId: string) => {
+    try {
+      await deleteFlashcard(cardId);
+      toast.success(t("flashcards.deleteSuccess"));
+    } catch (error) {
+      // Error is already handled by the hook (optimistic update reverted)
+      toast.error(t("flashcards.deleteError"));
+      console.error("Failed to delete flashcard:", error);
+    }
   };
 
   const handleGenerationComplete = (batchId: string) => {
@@ -185,7 +207,7 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
       {/* Flashcards List */}
       <div className="space-y-4">
         {flashcards.map((card) => (
-          <FlashcardItem key={card.id} card={card} onEdit={handleEdit} />
+          <FlashcardItem key={card.id} card={card} onEdit={handleEdit} onDelete={handleDelete} />
         ))}
 
         {/* Load More Trigger */}

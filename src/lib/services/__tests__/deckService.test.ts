@@ -51,7 +51,7 @@ describe("DeckService", () => {
         id: deckId,
         name: "Test Deck",
         createdAt: "2025-01-01T00:00:00.000Z",
-        cardCount: mockCardCount,
+        totalCards: mockCardCount,
       });
       expect(mockSupabase.from).toHaveBeenCalledWith("decks");
       expect(mockQuery.select).toHaveBeenCalledWith(expect.stringContaining("flashcards!inner(count)"));
@@ -123,6 +123,7 @@ describe("DeckService", () => {
         id: "new-deck-123",
         name: "New Test Deck",
         createdAt: "2025-01-01T00:00:00.000Z",
+        totalCards: 0,
       });
       expect(mockSupabase.from).toHaveBeenCalledWith("decks");
       expect(mockQuery.insert).toHaveBeenCalledWith({
@@ -200,6 +201,7 @@ describe("DeckService", () => {
           id: deckId,
           name: mockExistingDeck.name,
           createdAt: mockExistingDeck.created_at,
+          totalCards: 0,
         },
       });
       expect(mockUpdateQuery.update).toHaveBeenCalledWith({
@@ -317,11 +319,13 @@ describe("DeckService", () => {
             id: "deck-1",
             name: "Deck 1",
             createdAt: "2025-01-01T00:00:00.000Z",
+            totalCards: 0,
           },
           {
             id: "deck-2",
             name: "Deck 2",
             createdAt: "2025-01-01T00:00:00.000Z",
+            totalCards: 0,
           },
         ],
         pagination: {
@@ -361,6 +365,7 @@ describe("DeckService", () => {
             id: "deck-1",
             name: "Z Deck",
             createdAt: "2025-01-01T00:00:00.000Z",
+            totalCards: 0,
           },
         ],
         pagination: {
@@ -483,6 +488,7 @@ describe("DeckService", () => {
         id: deckId,
         name: updates.name,
         createdAt: mockExistingDeck.created_at,
+        totalCards: 0,
       });
       expect(mockUpdateQuery.update).toHaveBeenCalledWith({ name: updates.name });
     });
@@ -531,7 +537,13 @@ describe("DeckService", () => {
         maybeSingle: vi.fn().mockResolvedValue(createMockQueryResult(mockExistingDeck)),
       };
 
-      mockSupabase.from.mockReturnValue(mockFetchQuery);
+      const mockCardCountQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        is: vi.fn().mockResolvedValue(createMockQueryResult([{ count: 5 }])),
+      };
+
+      mockSupabase.from.mockReturnValueOnce(mockFetchQuery).mockReturnValueOnce(mockCardCountQuery);
 
       // Act
       const result = await deckService.updateDeck(userId, deckId, updates);
@@ -541,9 +553,10 @@ describe("DeckService", () => {
         id: deckId,
         name: currentName,
         createdAt: mockExistingDeck.created_at,
+        totalCards: 5,
       });
       // Should not call update query since no actual changes
-      expect(mockSupabase.from).toHaveBeenCalledTimes(1); // Only the fetch query
+      expect(mockSupabase.from).toHaveBeenCalledTimes(2); // Fetch query + card count query
     });
   });
 });

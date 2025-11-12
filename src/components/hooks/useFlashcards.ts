@@ -10,6 +10,7 @@ interface UseFlashcardsResult {
   loadMore: () => void;
   createFlashcard: (front: string, back: string) => Promise<void>;
   updateFlashcard: (cardId: string, updates: { front?: string; back?: string }) => Promise<void>;
+  deleteFlashcard: (cardId: string) => Promise<void>;
   refresh: () => void;
 }
 
@@ -149,6 +150,30 @@ export function useFlashcards(deckId: string): UseFlashcardsResult {
     [deckId, refresh]
   );
 
+  // Delete flashcard with optimistic updates
+  const deleteFlashcard = useCallback(
+    async (cardId: string) => {
+      // Find the current flashcard for potential rollback
+      const currentCard = flashcards.find((card) => card.id === cardId);
+      if (!currentCard) return;
+
+      // Optimistic update - remove from local state
+      setFlashcards((prev) => prev.filter((card) => card.id !== cardId));
+
+      const response = await fetch(`/api/flashcards/${cardId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        // Revert optimistic update on failure
+        setFlashcards((prev) => [...prev, currentCard]);
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Failed to delete flashcard");
+      }
+    },
+    [flashcards]
+  );
+
   return {
     flashcards,
     isLoading,
@@ -158,6 +183,7 @@ export function useFlashcards(deckId: string): UseFlashcardsResult {
     loadMore,
     createFlashcard,
     updateFlashcard,
+    deleteFlashcard,
     refresh,
   };
 }

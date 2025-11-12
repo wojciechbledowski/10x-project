@@ -168,7 +168,11 @@
       "manual": "ręczne",
       "ai": "ai",
       "aiEdited": "ai_edytowane"
-    }
+    },
+    "deleteSuccess": "Fiszka została pomyślnie usunięta",
+    "deleteError": "Nie udało się usunąć fiszki",
+    "deleteCardTitle": "Usuń fiszkę",
+    "deleteCardDescription": "Czy na pewno chcesz usunąć tę fiszkę? Tej akcji nie można cofnąć."
   },
   "review": {
     "title": "Przejrzyj wygenerowane fiszki",

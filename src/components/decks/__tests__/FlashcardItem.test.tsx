@@ -17,6 +17,9 @@ vi.mock("@/lib/i18n/react", () => ({
         "flashcards.source.ai": "AI Generated",
         "flashcards.source.aiEdited": "AI Edited",
         "common.edit": "Edit",
+        "common.delete": "Delete",
+        "flashcards.deleteCardTitle": "Delete Card",
+        "flashcards.deleteCardDescription": "Are you sure you want to delete this card? This action cannot be undone.",
       };
       return translations[key] || key;
     },
@@ -26,28 +29,45 @@ vi.mock("@/lib/i18n/react", () => ({
 
 // Mock the Button component
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, onClick, variant, size, className, "aria-label": ariaLabel }: any) => (
-    <button
-      onClick={onClick}
-      data-variant={variant}
-      data-size={size}
-      className={className}
-      aria-label={ariaLabel}
-      type="button"
-      data-testid="edit-button"
-    >
-      {children}
-    </button>
-  ),
+  Button: ({ children, onClick, variant, size, className, "aria-label": ariaLabel }: any) => {
+    const isDeleteButton = ariaLabel === "common.delete" || className?.includes("hover:bg-red");
+    return (
+      <button
+        onClick={onClick}
+        data-variant={variant}
+        data-size={size}
+        className={className}
+        aria-label={ariaLabel}
+        type="button"
+        data-testid={isDeleteButton ? "delete-button" : "edit-button"}
+      >
+        {children}
+      </button>
+    );
+  },
 }));
 
-// Mock lucide-react Edit icon
+// Mock AlertDialog components
+vi.mock("@/components/ui/alert-dialog", () => ({
+  AlertDialog: ({ children, open }: any) => open ? <div data-testid="alert-dialog">{children}</div> : null,
+  AlertDialogContent: ({ children }: any) => <div data-testid="alert-dialog-content">{children}</div>,
+  AlertDialogHeader: ({ children }: any) => <div data-testid="alert-dialog-header">{children}</div>,
+  AlertDialogTitle: ({ children }: any) => <h2 data-testid="alert-dialog-title">{children}</h2>,
+  AlertDialogDescription: ({ children }: any) => <p data-testid="alert-dialog-description">{children}</p>,
+  AlertDialogFooter: ({ children }: any) => <div data-testid="alert-dialog-footer">{children}</div>,
+  AlertDialogCancel: ({ children, onClick }: any) => <button data-testid="alert-dialog-cancel" onClick={onClick}>{children}</button>,
+  AlertDialogAction: ({ children, onClick }: any) => <button data-testid="alert-dialog-action" onClick={onClick}>{children}</button>,
+}));
+
+// Mock lucide-react icons
 vi.mock("lucide-react", () => ({
   Edit: () => <svg data-testid="edit-icon" />,
+  Trash2: () => <svg data-testid="trash-icon" />,
 }));
 
 describe("FlashcardItem", () => {
   const mockOnEdit = vi.fn();
+  const mockOnDelete = vi.fn();
 
   const mockCard: FlashcardVM = {
     id: "card-1",
@@ -61,6 +81,7 @@ describe("FlashcardItem", () => {
     card: mockCard,
     lang: "en" as Language,
     onEdit: mockOnEdit,
+    onDelete: mockOnDelete,
   };
 
   beforeEach(() => {

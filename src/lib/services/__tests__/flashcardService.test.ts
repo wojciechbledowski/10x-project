@@ -1609,6 +1609,11 @@ describe("FlashcardService", () => {
           back: createData.back,
           deck_id: null,
           source: createData.source,
+          // SM-2 algorithm defaults
+          ease_factor: 2.5,
+          interval_days: 1,
+          repetition: 0,
+          next_review_at: null,
         });
         expect(mockSupabase.from).toHaveBeenCalledWith("events");
       });
@@ -1695,6 +1700,11 @@ describe("FlashcardService", () => {
           back: createData.back,
           deck_id: null,
           source: "manual",
+          // SM-2 algorithm defaults
+          ease_factor: 2.5,
+          interval_days: 1,
+          repetition: 0,
+          next_review_at: null,
         });
       });
 
