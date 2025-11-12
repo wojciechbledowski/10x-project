@@ -23,45 +23,57 @@ import { useI18n } from "@/lib/i18n/react";
 import { StepperNavigation } from "./StepperNavigation";
 import { CardReviewContent } from "./CardReviewContent";
 import { CardActions } from "./CardActions";
-import { useGeneratedCardsReview } from "../hooks/useGeneratedCardsReview";
-import type { GeneratedCardsReviewModalProps } from "@/types";
+import type { GeneratedCardsReviewModalProps, ReviewCardVM, FlashcardResponse } from "@/types";
 
-function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }: GeneratedCardsReviewModalProps) {
+function GeneratedCardsReviewModalInner({
+  flashcards,
+  deckId,
+  isOpen,
+  onClose,
+  onComplete,
+}: GeneratedCardsReviewModalProps) {
   const { t } = useI18n();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{ front?: string; back?: string }>({});
   const [showAcceptAllDialog, setShowAcceptAllDialog] = useState(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const {
-    batch, // eslint-disable-line @typescript-eslint/no-unused-vars
-    cards,
-    currentStep,
-    isLoading,
-    isProcessing,
-    error,
-    loadBatch,
-    acceptCard,
-    editCard,
-    deleteCard,
-    acceptAllCards,
-    deleteAllCards,
-    nextCard,
-    previousCard,
-    goToCard,
-    completeReview,
-  } = useGeneratedCardsReview();
+  // Convert flashcards to ReviewCardVM format and manage state
+  const [cards, setCards] = useState<ReviewCardVM[]>(() =>
+    flashcards.map((card, index) => ({
+      id: `temp-${index}`,
+      front: card.front,
+      back: card.back,
+      source: "ai",
+      status: "pending" as const,
+      isEdited: false,
+      originalFront: card.front,
+      originalBack: card.back,
+    }))
+  );
 
   // Local error state for validation errors
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Load batch when modal opens
+  // Update cards when flashcards prop changes
   useEffect(() => {
-    if (isOpen && batchId) {
-      loadBatch(batchId);
-    }
-  }, [isOpen, batchId, loadBatch]);
+    setCards(
+      flashcards.map((card, index) => ({
+        id: `temp-${index}`,
+        front: card.front,
+        back: card.back,
+        source: "ai",
+        status: "pending" as const,
+        isEdited: false,
+        originalFront: card.front,
+        originalBack: card.back,
+      }))
+    );
+    setCurrentStep(0); // Reset to first card
+  }, [flashcards]);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -83,62 +95,18 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
     onClose();
   }, [isEditing, onClose, t]);
 
-  // Get current card for keyboard handling
-  const currentCard = cards[currentStep];
+  // Navigation functions
+  const nextCard = useCallback(() => {
+    setCurrentStep((prev) => Math.min(prev + 1, cards.length - 1));
+  }, [cards.length]);
 
-  // Handle keyboard shortcuts
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (!isOpen) return;
+  const previousCard = useCallback(() => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  }, []);
 
-      switch (e.key) {
-        case "Escape":
-          if (isEditing) {
-            setIsEditing(false);
-          } else {
-            handleClose();
-          }
-          break;
-        case "ArrowLeft":
-          if (!isEditing) {
-            e.preventDefault();
-            previousCard();
-          }
-          break;
-        case "ArrowRight":
-          if (!isEditing) {
-            e.preventDefault();
-            nextCard();
-          }
-          break;
-        case "ArrowUp":
-        case "ArrowDown":
-          if (!isEditing) {
-            e.preventDefault();
-            setIsFlipped((prev) => !prev);
-          }
-          break;
-        case "Enter":
-          if (!isEditing && !isProcessing && currentCard?.status === "pending") {
-            e.preventDefault();
-            acceptCard(currentCard.id);
-          }
-          break;
-        case " ":
-          if (!isEditing) {
-            e.preventDefault();
-            setIsFlipped((prev) => !prev);
-          }
-          break;
-      }
-    },
-    [isOpen, isEditing, isProcessing, handleClose, previousCard, nextCard, acceptCard, currentCard]
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+  const goToCard = useCallback((step: number) => {
+    setCurrentStep(step);
+  }, []);
 
   // Handle card flip
   const handleFlip = useCallback(() => {
@@ -183,21 +151,40 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
   // Handle save edited content
   const handleSave = useCallback(async () => {
     if (cards[currentStep]) {
-      await editCard(cards[currentStep].id, {
-        front: cards[currentStep].front,
-        back: cards[currentStep].back,
+      const currentCard = cards[currentStep];
+      console.log("Editing card:", {
+        id: currentCard.id,
+        source: currentCard.source,
+        status: currentCard.status,
+        isEdited: currentCard.isEdited,
       });
+
+      // If the card was originally "ai" and is now being edited, change source to "ai_edited"
+      const newSource = currentCard.source === "ai" ? "ai_edited" : currentCard.source;
+      console.log("New source will be:", newSource);
+
+      setCards((prev) =>
+        prev.map((card, index) =>
+          index === currentStep ? { ...card, status: "edited" as const, isEdited: true, source: newSource } : card
+        )
+      );
       setIsEditing(false);
       setValidationErrors({});
     }
-  }, [cards, currentStep, editCard]);
+  }, [cards, currentStep]);
 
   // Handle accept current card
   const handleAcceptCard = useCallback(() => {
     if (cards[currentStep]) {
-      acceptCard(cards[currentStep].id);
+      setCards((prev) =>
+        prev.map((card, index) => (index === currentStep ? { ...card, status: "accepted" as const } : card))
+      );
+      // Automatically go to next card if not the last one
+      if (currentStep < cards.length - 1) {
+        nextCard();
+      }
     }
-  }, [cards, currentStep, acceptCard]);
+  }, [cards, currentStep, nextCard]);
 
   // Handle edit current card
   const handleEditCard = useCallback(() => {
@@ -207,23 +194,97 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
   // Handle delete current card
   const handleDeleteCard = useCallback(() => {
     if (cards[currentStep]) {
-      deleteCard(cards[currentStep].id);
+      setCards((prev) => prev.filter((_, index) => index !== currentStep));
+      // Adjust current step if necessary
+      if (currentStep >= cards.length - 1 && currentStep > 0) {
+        setCurrentStep((prev) => prev - 1);
+      }
     }
-  }, [cards, currentStep, deleteCard]);
+  }, [cards, currentStep]);
 
   // Handle bulk operations
   const handleAcceptAll = useCallback(async () => {
-    await acceptAllCards();
+    setCards((prev) =>
+      prev.map((card) => (card.status === "pending" ? { ...card, status: "accepted" as const } : card))
+    );
     setShowAcceptAllDialog(false);
-  }, [acceptAllCards]);
+  }, []);
 
   const handleDeleteAll = useCallback(async () => {
-    await deleteAllCards();
+    setCards((prev) => prev.filter((card) => card.status !== "pending"));
     setShowDeleteAllDialog(false);
-  }, [deleteAllCards]);
+  }, []);
+
+  // Get current card for keyboard handling
+  const currentCard = cards[currentStep];
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen) return;
+
+      switch (e.key) {
+        case "Escape":
+          if (isEditing) {
+            setIsEditing(false);
+          } else {
+            handleClose();
+          }
+          break;
+        case "ArrowLeft":
+          if (!isEditing && currentStep > 0) {
+            e.preventDefault();
+            previousCard();
+          }
+          break;
+        case "ArrowRight":
+          if (!isEditing && currentStep < cards.length - 1) {
+            e.preventDefault();
+            nextCard();
+          }
+          break;
+        case "ArrowUp":
+        case "ArrowDown":
+          if (!isEditing) {
+            e.preventDefault();
+            setIsFlipped((prev) => !prev);
+          }
+          break;
+        case "Enter":
+          if (!isEditing && !isProcessing && currentCard?.status === "pending") {
+            e.preventDefault();
+            handleAcceptCard();
+          }
+          break;
+        case " ":
+          if (!isEditing) {
+            e.preventDefault();
+            setIsFlipped((prev) => !prev);
+          }
+          break;
+      }
+    },
+    [
+      isOpen,
+      isEditing,
+      isProcessing,
+      handleClose,
+      previousCard,
+      nextCard,
+      handleAcceptCard,
+      currentCard,
+      currentStep,
+      cards.length,
+    ]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   // Handle completion
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
     // Validate all accepted/edited cards have valid content
     const acceptedOrEditedCards = cards.filter((card) => card.status === "accepted" || card.status === "edited");
 
@@ -242,11 +303,50 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
       }
     }
 
-    // Clear any existing errors and complete
-    setValidationError(null);
-    const acceptedCards = completeReview();
-    onComplete(acceptedCards);
-  }, [cards, completeReview, onComplete]);
+    try {
+      // Clear any existing errors and save accepted/edited cards
+      setValidationError(null);
+      setIsProcessing(true);
+
+      // Save accepted/edited cards to database
+      const savedCards: ReviewCardVM[] = [];
+      for (const card of acceptedOrEditedCards) {
+        const createRequest = {
+          front: card.front,
+          back: card.back,
+          deckId,
+          source: card.status === "edited" ? "ai_edited" : "ai",
+        };
+
+        const response = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(createRequest),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to save card: HTTP ${response.status}`);
+        }
+
+        const savedCard: FlashcardResponse = await response.json();
+        const reviewCard: ReviewCardVM = {
+          ...card,
+          ...savedCard,
+          status: card.status,
+          isEdited: card.isEdited,
+        };
+        savedCards.push(reviewCard);
+      }
+
+      onComplete(savedCards);
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : "Failed to complete review");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [cards, deckId, onComplete]);
 
   // Get card statuses for stepper
   const cardStatuses = cards.map((card) => card.status);
@@ -256,37 +356,6 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
 
   // Check if any cards are accepted
   const hasAcceptedCards = cards.some((card) => card.status === "accepted" || card.status === "edited");
-
-  if (isLoading) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("review.loadingCards")}</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (error) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("common.error")}</DialogTitle>
-            <DialogDescription>{error}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={handleClose}>{t("common.close")}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   if (validationError) {
     return (
@@ -326,14 +395,15 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden p-6">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <DialogTitle>{t("review.title")}</DialogTitle>
-                <DialogDescription>
-                  {t("review.description", { current: currentStep + 1, total: cards.length })}
-                </DialogDescription>
+                <DialogDescription className="text-sm">{t("review.description")}</DialogDescription>
+              </div>
+              <div className="text-sm font-medium text-muted-foreground whitespace-nowrap ml-4">
+                {t("review.cardProgress", { current: currentStep + 1, total: cards.length })}
               </div>
               <Button
                 variant="ghost"
@@ -347,7 +417,7 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             </div>
           </DialogHeader>
 
-          <div className="flex flex-col space-y-6 overflow-hidden">
+          <div className="flex flex-col gap-6 overflow-hidden py-2">
             {/* Stepper Navigation */}
             <StepperNavigation
               currentStep={currentStep}
@@ -364,7 +434,7 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             />
 
             {/* Card Review Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden min-h-0">
               <CardReviewContent
                 card={currentCard}
                 isFlipped={isFlipped}
@@ -389,26 +459,25 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             />
           </div>
 
-          <DialogFooter className="flex items-center justify-between">
+          <DialogFooter className="flex items-center justify-between gap-4">
             {/* Bulk Actions */}
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               {hasPendingCards && (
                 <>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setShowAcceptAllDialog(true)}
                     disabled={isProcessing}
+                    className="min-w-[100px]"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     {t("review.acceptAll")}
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setShowDeleteAllDialog(true)}
                     disabled={isProcessing}
-                    className="hover:bg-red-50 hover:border-red-200 hover:text-red-700"
+                    className="hover:bg-red-50 hover:border-red-200 hover:text-red-700 min-w-[100px]"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     {t("review.deleteAll")}
@@ -418,13 +487,13 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             </div>
 
             {/* Complete Button */}
-            <Button onClick={handleComplete} disabled={!hasAcceptedCards || isProcessing} size="sm">
+            <Button onClick={handleComplete} disabled={!hasAcceptedCards || isProcessing} className="min-w-[140px]">
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <CheckCircle className="h-4 w-4 mr-2" />
               )}
-              {t("review.complete_review")}
+              {t("review.completeReview")}
             </Button>
           </DialogFooter>
         </DialogContent>

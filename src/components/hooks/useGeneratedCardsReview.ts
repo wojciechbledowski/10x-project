@@ -17,7 +17,7 @@ interface UseGeneratedCardsReviewResult {
   nextCard: () => void;
   previousCard: () => void;
   goToCard: (step: number) => void;
-  completeReview: () => ReviewCardVM[];
+  completeReview: () => Promise<ReviewCardVM[]>;
 }
 
 const POLLING_INTERVAL = 2000; // 2 seconds
@@ -51,16 +51,39 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
   // Convert batch response to cards array
   const convertBatchToCards = useCallback(
     (batchResponse: GenerationBatchResponse): ReviewCardVM[] => {
-      const allFlashcards: FlashcardResponse[] = [];
+      const allFlashcards: { front: string; back: string; id: string }[] = [];
 
       // Collect all flashcards from all generations in the batch
       batchResponse.generations.forEach((generation) => {
-        if (generation.flashcards) {
-          allFlashcards.push(...generation.flashcards);
+        if (generation.generatedData?.flashcards) {
+          // Add generated data flashcards with temporary IDs
+          generation.generatedData.flashcards.forEach((card: { front: string; back: string }, index: number) => {
+            allFlashcards.push({
+              id: `temp-${generation.id}-${index}`,
+              front: card.front,
+              back: card.back,
+            });
+          });
         }
       });
 
-      return allFlashcards.map(convertToReviewCardVM);
+      return allFlashcards.map((card) =>
+        convertToReviewCardVM({
+          id: card.id,
+          front: card.front,
+          back: card.back,
+          source: "ai",
+          deckId: null,
+          easeFactor: 2.5,
+          intervalDays: 1,
+          repetition: 0,
+          nextReviewAt: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId: "",
+          deletedAt: null,
+        })
+      );
     },
     [convertToReviewCardVM]
   );
@@ -161,71 +184,26 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
   );
 
   // Accept a card (mark as accepted)
-  const acceptCard = useCallback(
-    async (cardId: string) => {
-      setIsProcessing(true);
+  const acceptCard = useCallback(async (cardId: string) => {
+    setIsProcessing(true);
 
-      // Optimistic update
-      setCards((prev) =>
-        prev.map((card) => (card.id === cardId ? { ...card, status: "accepted" as CardStatus } : card))
-      );
+    // Update local state only (will be saved when review is completed)
+    setCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, status: "accepted" as CardStatus } : card)));
 
-      try {
-        // Save the card immediately via API
-        const cardToSave = cards.find((card) => card.id === cardId);
-        if (!cardToSave) throw new Error("Card not found");
-
-        const createRequest = {
-          front: cardToSave.front,
-          back: cardToSave.back,
-          deckId: batch?.generations[0]?.deckId || undefined,
-          source: "ai" as const,
-        };
-
-        const response = await fetch("/api/flashcards", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createRequest),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const savedCard: FlashcardResponse = await response.json();
-
-        // Update the card with the saved card's data (keeping review status)
-        setCards((prev) =>
-          prev.map((card) =>
-            card.id === cardId ? { ...card, ...savedCard, status: "accepted" as CardStatus, source: "ai" } : card
-          )
-        );
-      } catch (err) {
-        // Revert optimistic update on failure
-        setCards((prev) =>
-          prev.map((card) => (card.id === cardId ? { ...card, status: "pending" as CardStatus } : card))
-        );
-        setError(err instanceof Error ? err.message : "Failed to accept card");
-      } finally {
-        setIsProcessing(false);
-      }
-    },
-    [cards, batch]
-  );
+    setIsProcessing(false);
+  }, []);
 
   // Edit a card content
   const editCard = useCallback(
     async (cardId: string, updates: { front?: string; back?: string }) => {
       setIsProcessing(true);
 
-      // Find current card for optimistic update
+      // Find current card for update
       const currentCard = cards.find((card) => card.id === cardId);
       if (!currentCard) return;
 
-      // Optimistic update
-      const optimisticCard: ReviewCardVM = {
+      // Update local state only (will be saved when review is completed)
+      const updatedCard: ReviewCardVM = {
         ...currentCard,
         front: updates.front ?? currentCard.front,
         back: updates.back ?? currentCard.back,
@@ -233,132 +211,43 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
         isEdited: true,
       };
 
-      setCards((prev) => prev.map((card) => (card.id === cardId ? optimisticCard : card)));
-
-      try {
-        // Update the card via API (PATCH)
-        const updateRequest = {
-          ...updates,
-          source: "ai_edited" as const,
-        };
-
-        const response = await fetch(`/api/flashcards/${cardId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateRequest),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const updatedCard: FlashcardResponse = await response.json();
-
-        // Update the card with the response data (keeping review status)
-        setCards((prev) =>
-          prev.map((card) =>
-            card.id === cardId
-              ? { ...card, ...updatedCard, status: "edited" as CardStatus, isEdited: true, source: "ai_edited" }
-              : card
-          )
-        );
-      } catch (err) {
-        // Revert optimistic update on failure
-        setCards((prev) => prev.map((card) => (card.id === cardId ? currentCard : card)));
-        setError(err instanceof Error ? err.message : "Failed to edit card");
-      } finally {
-        setIsProcessing(false);
-      }
+      setCards((prev) => prev.map((card) => (card.id === cardId ? updatedCard : card)));
+      setIsProcessing(false);
     },
     [cards]
   );
 
-  // Delete a card (mark for deletion)
+  // Delete a card (remove from review)
   const deleteCard = useCallback(async (cardId: string) => {
     setIsProcessing(true);
 
-    // Optimistic update
-    setCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, status: "deleted" as CardStatus } : card)));
+    // Remove the card from local state (since it was never saved to database)
+    setCards((prev) => prev.filter((card) => card.id !== cardId));
 
-    try {
-      // Delete the card via API
-      const response = await fetch(`/api/flashcards/${cardId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      // Card successfully deleted, keep the "deleted" status
-    } catch (err) {
-      // Revert optimistic update on failure
-      setCards((prev) =>
-        prev.map((card) => (card.id === cardId ? { ...card, status: "pending" as CardStatus } : card))
-      );
-      setError(err instanceof Error ? err.message : "Failed to delete card");
-    } finally {
-      setIsProcessing(false);
-    }
+    setIsProcessing(false);
   }, []);
 
   // Accept all pending cards
   const acceptAllCards = useCallback(async () => {
     setIsProcessing(true);
 
-    // Get all pending card IDs
-    const pendingCardIds = cards.filter((card) => card.status === "pending").map((card) => card.id);
-
-    // Optimistic update
+    // Update local state only (will be saved when review is completed)
     setCards((prev) =>
       prev.map((card) => (card.status === "pending" ? { ...card, status: "accepted" as CardStatus } : card))
     );
 
-    try {
-      // Accept each card individually (they will be persisted via API)
-      for (const cardId of pendingCardIds) {
-        await acceptCard(cardId);
-      }
-    } catch (err) {
-      // Revert optimistic update on failure
-      setCards((prev) =>
-        prev.map((card) => (card.status === "accepted" ? { ...card, status: "pending" as CardStatus } : card))
-      );
-      setError(err instanceof Error ? err.message : "Failed to accept all cards");
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [cards, acceptCard]);
+    setIsProcessing(false);
+  }, []);
 
   // Delete all pending cards
   const deleteAllCards = useCallback(async () => {
     setIsProcessing(true);
 
-    // Get all pending card IDs
-    const pendingCardIds = cards.filter((card) => card.status === "pending").map((card) => card.id);
+    // Remove all pending cards from local state (since they were never saved to database)
+    setCards((prev) => prev.filter((card) => card.status !== "pending"));
 
-    // Optimistic update
-    setCards((prev) =>
-      prev.map((card) => (card.status === "pending" ? { ...card, status: "deleted" as CardStatus } : card))
-    );
-
-    try {
-      // Delete each card individually (they will be persisted via API)
-      for (const cardId of pendingCardIds) {
-        await deleteCard(cardId);
-      }
-    } catch (err) {
-      // Revert optimistic update on failure
-      setCards((prev) =>
-        prev.map((card) => (card.status === "deleted" ? { ...card, status: "pending" as CardStatus } : card))
-      );
-      setError(err instanceof Error ? err.message : "Failed to delete all cards");
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [cards, deleteCard]);
+    setIsProcessing(false);
+  }, []);
 
   // Navigate to next card
   const nextCard = useCallback(() => {
@@ -379,19 +268,60 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
   );
 
   // Complete review and return accepted/edited cards (already persisted)
-  const completeReview = useCallback((): ReviewCardVM[] => {
-    // Filter accepted and edited cards (deleted cards are already removed from DB)
-    const acceptedCards = cards.filter((card) => card.status === "accepted" || card.status === "edited");
+  const completeReview = useCallback(async (): Promise<ReviewCardVM[]> => {
+    setIsProcessing(true);
 
-    // Reset state
-    setBatch(null);
-    setCards([]);
-    setCurrentStep(0);
-    setError(null);
+    try {
+      // Filter accepted and edited cards
+      const cardsToSave = cards.filter((card) => card.status === "accepted" || card.status === "edited");
 
-    // Return the accepted/edited cards (already persisted to database)
-    return acceptedCards;
-  }, [cards]);
+      // Save accepted/edited cards to database
+      const savedCards: ReviewCardVM[] = [];
+      for (const card of cardsToSave) {
+        const createRequest = {
+          front: card.front,
+          back: card.back,
+          deckId: batch?.generations[0]?.deckId || undefined,
+          source: card.status === "edited" ? "ai_edited" : "ai",
+        };
+
+        const response = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(createRequest),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to save card: HTTP ${response.status}`);
+        }
+
+        const savedCard: FlashcardResponse = await response.json();
+        const reviewCard: ReviewCardVM = {
+          ...card,
+          ...savedCard,
+          status: card.status,
+          isEdited: card.isEdited,
+        };
+        savedCards.push(reviewCard);
+      }
+
+      // Reset state
+      setBatch(null);
+      setCards([]);
+      setCurrentStep(0);
+      setError(null);
+
+      // Return the saved cards
+      return savedCards;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to complete review");
+      throw err;
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [cards, batch]);
 
   // Cleanup on unmount
   useEffect(() => {

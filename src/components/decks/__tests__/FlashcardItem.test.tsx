@@ -111,7 +111,7 @@ describe("FlashcardItem", () => {
 
     const badge = screen.getByText("Manual");
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("bg-primary/10", "text-primary");
+    expect(badge).toHaveClass("bg-blue-100", "text-blue-800");
   });
 
   it("renders AI source badge with correct styling", () => {
@@ -124,7 +124,7 @@ describe("FlashcardItem", () => {
 
     const badge = screen.getByText("AI Generated");
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("bg-secondary/50", "text-secondary-foreground");
+    expect(badge).toHaveClass("bg-green-100", "text-green-800");
   });
 
   it("renders AI edited source badge with correct styling", () => {
@@ -137,7 +137,7 @@ describe("FlashcardItem", () => {
 
     const badge = screen.getByText("AI Edited");
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("bg-orange-100", "text-orange-800");
+    expect(badge).toHaveClass("bg-purple-100", "text-purple-800");
   });
 
   it("renders edit button with icon and correct label", () => {

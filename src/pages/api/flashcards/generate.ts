@@ -2,9 +2,11 @@ import type { APIRoute } from "astro";
 import { generateFlashcardsBodySchema, type GenerateFlashcardsRequest } from "../../../lib/generation/schemas";
 import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { AiGenerationService } from "../../../lib/services/aiGeneration.service";
+import { OpenRouterService } from "../../../lib/openrouter/service";
 import { createErrorResponse, createJsonResponse } from "../../../lib/utils/apiResponse";
 import { ConsoleLogger } from "../../../lib/utils/logger";
 import { SlidingWindowRateLimiter } from "../../../lib/utils/rateLimiter";
+import { OPENROUTER_API_KEY } from "astro:env/server";
 
 export const prerender = false;
 
@@ -98,7 +100,13 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
       headers: request.headers,
     });
 
-  const aiGenerationService = new AiGenerationService(supabase);
+  // Initialize OpenRouter service for synchronous generation
+  const openRouterService = new OpenRouterService({
+    apiKey: OPENROUTER_API_KEY,
+    defaultModel: "microsoft/wizardlm-2-8x22b",
+  });
+
+  const aiGenerationService = new AiGenerationService(supabase, openRouterService);
 
   try {
     const requestData: GenerateFlashcardsRequest = validation.data;
@@ -118,58 +126,31 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
       }
     }
 
-    // Create generation batch
-    const batchId = await aiGenerationService.createGenerationBatch(locals.user.id);
-
-    // Create AI generation record
-    const generationId = await aiGenerationService.createAiGeneration(locals.user.id, batchId, requestData);
-
-    // Create background job for AI processing
-    await aiGenerationService.createAiProcessingJob(generationId, requestData);
-
     // Record rate limit usage
     await rateLimiter.recordUsage();
 
-    // Estimate card count based on text length
-    const estimatedCardCount = Math.max(1, Math.min(20, Math.floor(requestData.sourceText.length / 1000)));
+    // Generate flashcards directly
+    const generatedFlashcards = await aiGenerationService.generateFlashcardsDirect(locals.user.id, requestData);
 
-    logger.info("Flashcard generation initiated", {
+    logger.info("Flashcards generated successfully", {
       userId: locals.user.id,
-      batchId,
       deckId: requestData.deckId,
       sourceTextLength: requestData.sourceText.length,
-      estimatedCardCount,
+      generatedCount: generatedFlashcards.length,
     });
 
-    return createJsonResponse<GenerateFlashcardsResponse>(
-      202,
-      {
-        batchId,
-        estimatedCardCount,
-      },
-      {
-        headers: {
-          Location: `/generation-batches/${batchId}`,
-        },
-      }
-    );
+    return createJsonResponse(200, {
+      flashcards: generatedFlashcards,
+    });
   } catch (error) {
-    logger.error("Failed to initiate flashcard generation", {
+    logger.error("Failed to generate flashcards", {
       userId: locals.user.id,
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
     return createErrorResponse(500, {
       code: "SERVER_ERROR",
-      message: "Unexpected error occurred while initiating flashcard generation",
+      message: "Unexpected error occurred while generating flashcards",
     });
   }
 };
-
-/**
- * Response type for flashcard generation endpoint
- */
-interface GenerateFlashcardsResponse {
-  batchId: string;
-  estimatedCardCount: number;
-}

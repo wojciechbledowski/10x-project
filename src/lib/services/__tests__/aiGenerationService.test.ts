@@ -743,7 +743,7 @@ describe("AiGenerationService", () => {
         generation_batch_id: batchId,
         deck_id: mockRequest.deckId,
         status: "PENDING",
-        model_name: "openai/gpt-4o-mini",
+        model_name: "microsoft/wizardlm-2-8x22b",
         temperature: mockRequest.temperature,
         top_p: null,
         config: expect.objectContaining({
@@ -925,13 +925,13 @@ describe("AiGenerationService", () => {
       const insertData = mockInsertQuery.mock.calls[0][0];
       expect(insertData).toEqual({
         job_type: "ai_flashcard_generation",
-        status: "pending",
+        status: "QUEUED",
         payload: expect.objectContaining({
           generationId,
           sourceText: mockRequest.sourceText,
           temperature: mockRequest.temperature,
           deckId: mockRequest.deckId,
-          model: "openai/gpt-4o-mini",
+          model: "microsoft/wizardlm-2-8x22b",
           maxTokens: 4000,
           responseFormat: expect.any(Object),
           messages: expect.any(Array),

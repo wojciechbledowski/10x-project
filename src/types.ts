@@ -183,6 +183,9 @@ export interface AiGenerationResponse {
   generationBatchId: string | null;
   userId: string;
   flashcards?: FlashcardResponse[]; // Associated generated flashcards
+  generatedData?: {
+    flashcards: { front: string; back: string }[];
+  };
 }
 
 /**
@@ -508,7 +511,8 @@ export interface ReviewCardVM {
  * Props for the main GeneratedCardsReviewModal component
  */
 export interface GeneratedCardsReviewModalProps {
-  batchId: string;
+  flashcards: { front: string; back: string }[];
+  deckId: string;
   isOpen: boolean;
   onClose: () => void;
   onComplete: (acceptedCards: ReviewCardVM[]) => void;

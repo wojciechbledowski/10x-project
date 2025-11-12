@@ -45,9 +45,9 @@ function FlashcardItemInner({ card, onEdit, onDelete }: FlashcardItemProps) {
     };
 
     const badgeClasses = {
-      manual: "bg-primary/10 text-primary",
-      ai: "bg-secondary/50 text-secondary-foreground",
-      ai_edited: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      manual: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      ai: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      ai_edited: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
     };
 
     return (

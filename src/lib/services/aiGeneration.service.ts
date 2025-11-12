@@ -6,7 +6,8 @@ import type {
   FlashcardResponse,
   GenerateFlashcardsRequest,
 } from "../../types";
-import { ConsoleLogger } from "../utils/logger";
+import type { OpenRouterService } from "@/lib/openrouter/service";
+import { ConsoleLogger } from "@/lib/utils/logger";
 
 /**
  * Service for managing AI generation operations
@@ -14,7 +15,10 @@ import { ConsoleLogger } from "../utils/logger";
 export class AiGenerationService {
   private readonly logger = new ConsoleLogger("AiGenerationService");
 
-  constructor(private readonly supabase: SupabaseServerClient) {}
+  constructor(
+    private readonly supabase: SupabaseServerClient,
+    private readonly openRouterService?: OpenRouterService
+  ) {}
 
   /**
    * Retrieves a single AI generation with its associated flashcards
@@ -583,7 +587,7 @@ export class AiGenerationService {
         generation_batch_id: batchId,
         deck_id: request.deckId || null,
         status: "PENDING",
-        model_name: "openai/gpt-4o-mini", // Default model
+        model_name: "microsoft/wizardlm-2-8x22b", // Free model
         temperature: request.temperature,
         top_p: null, // Not used with temperature
         config: {
@@ -665,7 +669,7 @@ export class AiGenerationService {
       sourceText: request.sourceText,
       temperature: request.temperature,
       deckId: request.deckId,
-      model: "openai/gpt-4o-mini",
+      model: "microsoft/wizardlm-2-8x22b",
       maxTokens: 4000, // Reserve tokens for response
       responseFormat: {
         type: "json_schema" as const,
@@ -702,7 +706,7 @@ export class AiGenerationService {
       .from("background_jobs")
       .insert({
         job_type: "ai_flashcard_generation",
-        status: "pending",
+        status: "QUEUED",
         payload: jobPayload,
         retry_count: 0,
         last_error: null,
@@ -723,6 +727,242 @@ export class AiGenerationService {
       jobId: data.id,
     });
     return data.id;
+  }
+
+  /**
+   * Generates flashcards synchronously using OpenRouter API and creates AI generation record
+   * @param userId The authenticated user's ID
+   * @param request The validated generation request
+   * @param batchId The generation batch ID
+   * @returns The generation ID for the created flashcards
+   */
+  async generateFlashcardsSynchronously(
+    userId: string,
+    request: GenerateFlashcardsRequest,
+    batchId: string
+  ): Promise<string> {
+    this.logger.info("Generating flashcards synchronously", {
+      userId,
+      deckId: request.deckId,
+      sourceTextLength: request.sourceText.length,
+    });
+
+    // Create AI generation record first
+    const generationId = await this.createAiGeneration(userId, batchId, request);
+
+    // Build the generation prompt
+    const prompt = this.buildGenerationPrompt(request.sourceText);
+
+    // Call OpenRouter API
+    if (!this.openRouterService) {
+      throw new Error("OpenRouterService not provided to AiGenerationService");
+    }
+    const openRouterService = this.openRouterService;
+
+    const response = await openRouterService.chat(
+      [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      {
+        model: "microsoft/wizardlm-2-8x22b",
+        params: {
+          temperature: request.temperature ?? 0.7,
+        },
+        responseFormat: {
+          type: "json_schema",
+          json_schema: {
+            name: "flashcard_generation",
+            schema: {
+              type: "object",
+              properties: {
+                flashcards: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      front: { type: "string", minLength: 1, maxLength: 1000 },
+                      back: { type: "string", minLength: 1, maxLength: 1000 },
+                    },
+                    required: ["front", "back"],
+                  },
+                },
+              },
+              required: ["flashcards"],
+            },
+            strict: true,
+          },
+        },
+      }
+    );
+
+    // Parse the response
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content in OpenRouter response");
+    }
+
+    const contentString = typeof content === "string" ? content : JSON.stringify(content);
+
+    let parsedResponse;
+    try {
+      // Clean markdown code blocks if present
+      let jsonString = contentString.trim();
+      if (jsonString.startsWith("```json") && jsonString.endsWith("```")) {
+        jsonString = jsonString.slice(7, -3).trim();
+      } else if (jsonString.startsWith("```") && jsonString.endsWith("```")) {
+        jsonString = jsonString.slice(3, -3).trim();
+      }
+
+      parsedResponse = JSON.parse(jsonString);
+    } catch (error) {
+      this.logger.error("Failed to parse OpenRouter response", {
+        content: contentString,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new Error("Invalid response format from AI service");
+    }
+
+    // Handle both array format and object with flashcards property
+    let flashcards;
+    if (Array.isArray(parsedResponse)) {
+      flashcards = parsedResponse;
+    } else if (parsedResponse.flashcards && Array.isArray(parsedResponse.flashcards)) {
+      flashcards = parsedResponse.flashcards;
+    } else {
+      flashcards = [];
+    }
+
+    // Validate and prepare flashcards for review
+    const validFlashcards = flashcards
+      .filter((card: { front?: unknown; back?: unknown }) => card.front && card.back)
+      .map((card: { front: unknown; back: unknown }) => ({
+        front: String(card.front).trim(),
+        back: String(card.back).trim(),
+      }))
+      .filter(
+        (card: { front: string; back: string }) =>
+          card.front.length > 0 && card.back.length > 0 && card.front.length <= 1000 && card.back.length <= 1000
+      );
+
+    // Store generated flashcards in the ai_generation record as JSON for review
+    await this.supabase
+      .from("ai_generations")
+      .update({
+        generated_data: {
+          flashcards: validFlashcards,
+        },
+        status: "SUCCESS",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", generationId);
+
+    this.logger.info("Flashcards generated successfully", {
+      userId,
+      generationId,
+      generatedCount: validFlashcards.length,
+    });
+
+    return generationId;
+  }
+
+  /**
+   * Generate flashcards directly and return them without storing in database
+   * @param userId The user ID
+   * @param request The generation request
+   * @returns Array of generated flashcards
+   */
+  async generateFlashcardsDirect(
+    userId: string,
+    request: GenerateFlashcardsRequest
+  ): Promise<{ front: string; back: string }[]> {
+    this.logger.info("Generating flashcards directly", {
+      userId,
+      deckId: request.deckId,
+      sourceTextLength: request.sourceText.length,
+    });
+
+    // Build the generation prompt
+    const prompt = this.buildGenerationPrompt(request.sourceText);
+
+    // Call OpenRouter API
+    if (!this.openRouterService) {
+      throw new Error("OpenRouterService not provided to AiGenerationService");
+    }
+    const openRouterService = this.openRouterService;
+
+    const response = await openRouterService.chat(
+      [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      {
+        params: {
+          max_tokens: 4000,
+          temperature: 0.7,
+        },
+      }
+    );
+
+    // Parse the response
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content in OpenRouter response");
+    }
+
+    const contentString = typeof content === "string" ? content : JSON.stringify(content);
+
+    let parsedResponse;
+    try {
+      // Clean markdown code blocks if present
+      let jsonString = contentString.trim();
+      if (jsonString.startsWith("```json") && jsonString.endsWith("```")) {
+        jsonString = jsonString.slice(7, -3).trim();
+      } else if (jsonString.startsWith("```") && jsonString.endsWith("```")) {
+        jsonString = jsonString.slice(3, -3).trim();
+      }
+
+      parsedResponse = JSON.parse(jsonString);
+    } catch (error) {
+      this.logger.error("Failed to parse OpenRouter response", {
+        content: contentString,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new Error("Invalid response format from AI service");
+    }
+
+    // Handle both array format and object with flashcards property
+    let flashcards;
+    if (Array.isArray(parsedResponse)) {
+      flashcards = parsedResponse;
+    } else if (parsedResponse.flashcards && Array.isArray(parsedResponse.flashcards)) {
+      flashcards = parsedResponse.flashcards;
+    } else {
+      flashcards = [];
+    }
+
+    // Validate and prepare flashcards for review
+    const validFlashcards = flashcards
+      .filter((card: { front?: unknown; back?: unknown }) => card.front && card.back)
+      .map((card: { front: unknown; back: unknown }) => ({
+        front: String(card.front).trim(),
+        back: String(card.back).trim(),
+      }))
+      .filter(
+        (card: { front: string; back: string }) =>
+          card.front.length > 0 && card.back.length > 0 && card.front.length <= 1000 && card.back.length <= 1000
+      );
+
+    this.logger.info("Flashcards generated successfully", {
+      userId,
+      generatedCount: validFlashcards.length,
+    });
+
+    return validFlashcards;
   }
 
   /**
@@ -747,6 +987,18 @@ INSTRUCTIONS:
 8. Cover both factual knowledge and conceptual understanding
 9. Include definitions, examples, and relationships where relevant
 
-Please respond with a JSON array of flashcard objects, each with "front" and "back" properties.`;
+Return your response as a JSON array of flashcard objects. Each object must have exactly two properties: "front" and "back". Do not include any other text, markdown, or formatting in your response.
+
+Example format:
+[
+  {
+    "front": "What is the capital of France?",
+    "back": "Paris"
+  },
+  {
+    "front": "What is 2 + 2?",
+    "back": "4"
+  }
+]`;
   }
 }

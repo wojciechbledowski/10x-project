@@ -13,11 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n/react";
-import type { GenerateFlashcardsRequest, GenerateFlashcardsResponse } from "@/types";
+import { toast } from "sonner";
+import type { GenerateFlashcardsRequest } from "@/types";
 
 interface GenerateFlashcardsDialogProps {
   deckId: string;
-  onGenerationComplete: (batchId: string) => void;
+  onGenerationComplete: (flashcards: { front: string; back: string }[]) => void;
 }
 
 function GenerateFlashcardsDialogInner({ deckId, onGenerationComplete }: GenerateFlashcardsDialogProps) {
@@ -52,17 +53,20 @@ function GenerateFlashcardsDialogInner({ deckId, onGenerationComplete }: Generat
         body: JSON.stringify(requestBody),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Failed to generate flashcards");
+        throw new Error(data.error?.message || "Failed to generate flashcards");
       }
 
-      const data: GenerateFlashcardsResponse = await response.json();
+      // Show success message
+      toast.success(t("flashcards.generationSuccess", { count: data.flashcards.length }));
 
-      // Close the dialog and notify parent of completion
+      // Close the dialog and trigger review modal
       setOpen(false);
       setSourceText("");
-      onGenerationComplete(data.batchId);
+      // Trigger the review modal with the generated flashcards
+      onGenerationComplete(data.flashcards);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -97,7 +101,7 @@ function GenerateFlashcardsDialogInner({ deckId, onGenerationComplete }: Generat
               placeholder={t("flashcards.sourceTextPlaceholder")}
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
-              className="mt-2 min-h-[200px] resize-none"
+              className="mt-2 min-h-[200px] max-h-[400px] resize-none overflow-y-auto"
               maxLength={maxLength}
               disabled={isLoading}
             />

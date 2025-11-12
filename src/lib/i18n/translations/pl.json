@@ -156,6 +156,7 @@
     "tip4": "Sprawdź i popraw wygenerowane fiszki pod kątem dokładności",
     "generating": "Generowanie...",
     "generate": "Generuj",
+    "generationSuccess": "Pomyślnie wygenerowano {{count}} fiszek!",
     "emptyTitle": "Brak fiszek jeszcze",
     "emptyDescription": "Utwórz swoją pierwszą fiszkę, aby rozpocząć naukę.",
     "emptyFront": "Brak treści przodu",

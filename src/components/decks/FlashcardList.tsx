@@ -65,7 +65,7 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
 
   const [editingCard, setEditingCard] = useState<FlashcardVM | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [reviewBatchId, setReviewBatchId] = useState<string | null>(null);
+  const [reviewFlashcards, setReviewFlashcards] = useState<{ front: string; back: string }[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const handleEdit = (card: FlashcardVM) => {
@@ -92,8 +92,9 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
     }
   };
 
-  const handleGenerationComplete = (batchId: string) => {
-    setReviewBatchId(batchId);
+  const handleGenerationComplete = (flashcards: { front: string; back: string }[]) => {
+    // Open the review modal with the generated flashcards
+    setReviewFlashcards(flashcards);
     setIsReviewModalOpen(true);
   };
 
@@ -103,12 +104,12 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
     await refresh();
 
     setIsReviewModalOpen(false);
-    setReviewBatchId(null);
+    setReviewFlashcards([]);
   };
 
   const handleReviewClose = () => {
     setIsReviewModalOpen(false);
-    setReviewBatchId(null);
+    setReviewFlashcards([]);
   };
 
   if (isLoading) {
@@ -209,14 +210,13 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
       />
 
       {/* Review Generated Cards Modal */}
-      {reviewBatchId && (
-        <GeneratedCardsReviewModal
-          batchId={reviewBatchId}
-          isOpen={isReviewModalOpen}
-          onClose={handleReviewClose}
-          onComplete={handleReviewComplete}
-        />
-      )}
+      <GeneratedCardsReviewModal
+        flashcards={reviewFlashcards}
+        deckId={deckId}
+        isOpen={isReviewModalOpen}
+        onClose={handleReviewClose}
+        onComplete={handleReviewComplete}
+      />
     </>
   );
 }

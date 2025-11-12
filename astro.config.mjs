@@ -30,6 +30,10 @@ export default defineConfig({
         context: "server",
         access: "secret",
       }),
+      OPENROUTER_API_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
     },
     validateSecrets: true,
   },
