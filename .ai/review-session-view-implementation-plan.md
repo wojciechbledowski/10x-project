@@ -469,3 +469,4 @@ The view integrates with review endpoints through the `useReviewSession` hook:
     - Accessibility testing with automated tools
     - Performance testing with large card queues
     - Cross-browser and mobile device testing
+
