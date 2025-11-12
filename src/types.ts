@@ -511,7 +511,7 @@ export interface GeneratedCardsReviewModalProps {
   batchId: string;
   isOpen: boolean;
   onClose: () => void;
-  onComplete: (acceptedCards: FlashcardResponse[]) => void;
+  onComplete: (acceptedCards: ReviewCardVM[]) => void;
 }
 
 /**

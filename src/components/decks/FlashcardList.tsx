@@ -9,7 +9,7 @@ import { EditFlashcardDialog } from "./EditFlashcardDialog";
 import { CreateFlashcardDialog } from "./CreateFlashcardDialog";
 import { GenerateFlashcardsDialog } from "./GenerateFlashcardsDialog";
 import { GeneratedCardsReviewModal } from "./GeneratedCardsReviewModal";
-import type { FlashcardVM, FlashcardResponse } from "@/types";
+import type { FlashcardVM } from "@/types";
 import type { Language } from "@/lib/i18n/config";
 
 interface FlashcardListProps {
@@ -97,27 +97,13 @@ function FlashcardListInner({ deckId }: { deckId: string }) {
     setIsReviewModalOpen(true);
   };
 
-  const handleReviewComplete = async (acceptedCards: FlashcardResponse[]) => {
-    // Save the accepted cards via API
-    if (acceptedCards.length > 0) {
-      const response = await fetch("/api/flashcards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(acceptedCards),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save flashcards");
-      }
-    }
+  const handleReviewComplete = async () => {
+    // Cards are already persisted individually via the hook
+    // Just refresh the flashcards list to show newly added cards
+    await refresh();
 
     setIsReviewModalOpen(false);
     setReviewBatchId(null);
-
-    // Refresh the flashcards list to show newly added cards
-    await refresh();
   };
 
   const handleReviewClose = () => {

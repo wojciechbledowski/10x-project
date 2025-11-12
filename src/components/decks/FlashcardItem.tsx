@@ -41,15 +41,13 @@ function FlashcardItemInner({ card, onEdit, onDelete }: FlashcardItemProps) {
     const sourceLabels = {
       manual: t("flashcards.source.manual"),
       ai: t("flashcards.source.ai"),
-      ai_generated: t("flashcards.source.ai"),
       ai_edited: t("flashcards.source.aiEdited"),
     };
 
     const badgeClasses = {
       manual: "bg-primary/10 text-primary",
       ai: "bg-secondary/50 text-secondary-foreground",
-      ai_generated: "bg-secondary/50 text-secondary-foreground",
-      ai_edited: "bg-secondary/50 text-secondary-foreground",
+      ai_edited: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
     };
 
     return (

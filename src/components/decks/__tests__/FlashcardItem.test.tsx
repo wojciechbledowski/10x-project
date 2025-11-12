@@ -49,14 +49,22 @@ vi.mock("@/components/ui/button", () => ({
 
 // Mock AlertDialog components
 vi.mock("@/components/ui/alert-dialog", () => ({
-  AlertDialog: ({ children, open }: any) => open ? <div data-testid="alert-dialog">{children}</div> : null,
+  AlertDialog: ({ children, open }: any) => (open ? <div data-testid="alert-dialog">{children}</div> : null),
   AlertDialogContent: ({ children }: any) => <div data-testid="alert-dialog-content">{children}</div>,
   AlertDialogHeader: ({ children }: any) => <div data-testid="alert-dialog-header">{children}</div>,
   AlertDialogTitle: ({ children }: any) => <h2 data-testid="alert-dialog-title">{children}</h2>,
   AlertDialogDescription: ({ children }: any) => <p data-testid="alert-dialog-description">{children}</p>,
   AlertDialogFooter: ({ children }: any) => <div data-testid="alert-dialog-footer">{children}</div>,
-  AlertDialogCancel: ({ children, onClick }: any) => <button data-testid="alert-dialog-cancel" onClick={onClick}>{children}</button>,
-  AlertDialogAction: ({ children, onClick }: any) => <button data-testid="alert-dialog-action" onClick={onClick}>{children}</button>,
+  AlertDialogCancel: ({ children, onClick }: any) => (
+    <button data-testid="alert-dialog-cancel" onClick={onClick}>
+      {children}
+    </button>
+  ),
+  AlertDialogAction: ({ children, onClick }: any) => (
+    <button data-testid="alert-dialog-action" onClick={onClick}>
+      {children}
+    </button>
+  ),
 }));
 
 // Mock lucide-react icons
@@ -129,7 +137,7 @@ describe("FlashcardItem", () => {
 
     const badge = screen.getByText("AI Edited");
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("bg-secondary/50", "text-secondary-foreground");
+    expect(badge).toHaveClass("bg-orange-100", "text-orange-800");
   });
 
   it("renders edit button with icon and correct label", () => {

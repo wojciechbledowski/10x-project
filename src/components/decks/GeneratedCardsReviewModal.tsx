@@ -24,7 +24,7 @@ import { StepperNavigation } from "./StepperNavigation";
 import { CardReviewContent } from "./CardReviewContent";
 import { CardActions } from "./CardActions";
 import { useGeneratedCardsReview } from "../hooks/useGeneratedCardsReview";
-import type { GeneratedCardsReviewModalProps, FlashcardResponse } from "@/types";
+import type { GeneratedCardsReviewModalProps } from "@/types";
 
 function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }: GeneratedCardsReviewModalProps) {
   const { t } = useI18n();
@@ -49,8 +49,12 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
     deleteAllCards,
     nextCard,
     previousCard,
+    goToCard,
     completeReview,
   } = useGeneratedCardsReview();
+
+  // Local error state for validation errors
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Load batch when modal opens
   useEffect(() => {
@@ -79,6 +83,9 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
     onClose();
   }, [isEditing, onClose, t]);
 
+  // Get current card for keyboard handling
+  const currentCard = cards[currentStep];
+
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -104,9 +111,28 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             nextCard();
           }
           break;
+        case "ArrowUp":
+        case "ArrowDown":
+          if (!isEditing) {
+            e.preventDefault();
+            setIsFlipped((prev) => !prev);
+          }
+          break;
+        case "Enter":
+          if (!isEditing && !isProcessing && currentCard?.status === "pending") {
+            e.preventDefault();
+            acceptCard(currentCard.id);
+          }
+          break;
+        case " ":
+          if (!isEditing) {
+            e.preventDefault();
+            setIsFlipped((prev) => !prev);
+          }
+          break;
       }
     },
-    [isOpen, isEditing, handleClose, previousCard, nextCard]
+    [isOpen, isEditing, isProcessing, handleClose, previousCard, nextCard, acceptCard, currentCard]
   );
 
   useEffect(() => {
@@ -198,9 +224,29 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
 
   // Handle completion
   const handleComplete = useCallback(() => {
-    const acceptedCards = completeReview() as FlashcardResponse[];
+    // Validate all accepted/edited cards have valid content
+    const acceptedOrEditedCards = cards.filter((card) => card.status === "accepted" || card.status === "edited");
+
+    for (const card of acceptedOrEditedCards) {
+      const frontTrimmed = card.front.trim();
+      const backTrimmed = card.back.trim();
+
+      if (!frontTrimmed || frontTrimmed.length > 1000) {
+        setValidationError(`Card "${frontTrimmed.substring(0, 50)}..." has invalid front content`);
+        return;
+      }
+
+      if (!backTrimmed || backTrimmed.length > 1000) {
+        setValidationError(`Card "${frontTrimmed.substring(0, 50)}..." has invalid back content`);
+        return;
+      }
+    }
+
+    // Clear any existing errors and complete
+    setValidationError(null);
+    const acceptedCards = completeReview();
     onComplete(acceptedCards);
-  }, [completeReview, onComplete]);
+  }, [cards, completeReview, onComplete]);
 
   // Get card statuses for stepper
   const cardStatuses = cards.map((card) => card.status);
@@ -242,6 +288,25 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
     );
   }
 
+  if (validationError) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("common.validationError")}</DialogTitle>
+            <DialogDescription>{validationError}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setValidationError(null)} variant="outline">
+              {t("common.ok")}
+            </Button>
+            <Button onClick={handleClose}>{t("common.close")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   if (!cards.length) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -257,8 +322,6 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
       </Dialog>
     );
   }
-
-  const currentCard = cards[currentStep];
 
   return (
     <>
@@ -289,7 +352,9 @@ function GeneratedCardsReviewModalInner({ batchId, isOpen, onClose, onComplete }
             <StepperNavigation
               currentStep={currentStep}
               totalSteps={cards.length}
-              onStepChange={() => {
+              onStepChange={(step) => {
+                // Navigate to the specified step
+                goToCard(step);
                 // Reset flip state when changing cards
                 setIsFlipped(false);
                 setIsEditing(false);

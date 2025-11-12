@@ -90,16 +90,15 @@ function CardReviewContentInner({
         aria-label={isFlipped ? t("flashcards.back") : t("flashcards.front")}
       >
         <div
-          className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
-            isFlipped ? "rotate-y-180" : ""
-          }`}
+          className="relative w-full h-full transition-transform duration-500"
           style={{
             transformStyle: "preserve-3d",
+            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
           {/* Front Side */}
           <div
-            className={`absolute inset-0 w-full h-full backface-hidden rounded-lg border border-border bg-card p-6 shadow-lg ${
+            className={`absolute inset-0 w-full h-full rounded-lg border border-border bg-card p-6 shadow-lg ${
               isEditing ? "ring-2 ring-primary" : ""
             }`}
             style={{
@@ -156,7 +155,7 @@ function CardReviewContentInner({
 
           {/* Back Side */}
           <div
-            className={`absolute inset-0 w-full h-full backface-hidden rounded-lg border border-border bg-card p-6 shadow-lg rotate-y-180 ${
+            className={`absolute inset-0 w-full h-full rounded-lg border border-border bg-card p-6 shadow-lg ${
               isEditing ? "ring-2 ring-primary" : ""
             }`}
             style={{
