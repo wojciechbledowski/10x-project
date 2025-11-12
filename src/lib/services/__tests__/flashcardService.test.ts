@@ -1613,7 +1613,7 @@ describe("FlashcardService", () => {
           ease_factor: 2.5,
           interval_days: 1,
           repetition: 0,
-          next_review_at: null,
+          next_review_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
         });
         expect(mockSupabase.from).toHaveBeenCalledWith("events");
       });
@@ -1704,7 +1704,7 @@ describe("FlashcardService", () => {
           ease_factor: 2.5,
           interval_days: 1,
           repetition: 0,
-          next_review_at: null,
+          next_review_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
         });
       });
 

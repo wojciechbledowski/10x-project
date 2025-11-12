@@ -507,6 +507,57 @@ export interface ReviewCardVM {
   originalBack: string;
 }
 
+// ============================================================================
+// REVIEW SESSION VIEW TYPES
+// ============================================================================
+
+/**
+ * Quality score for SM-2 algorithm (0-5 scale)
+ */
+export type QualityScore = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * View-model for individual review cards
+ */
+export interface ReviewSessionCardVM {
+  id: string;
+  front: string;
+  back: string;
+  source: FlashcardSource;
+  isFlipped: boolean;
+  showBack: boolean;
+}
+
+/**
+ * View-model for review session progress tracking
+ */
+export interface ReviewSessionVM {
+  currentCardIndex: number; // 0-based
+  totalCards: number;
+  completedCards: number;
+  sessionStartTime: Date;
+  averageLatencyMs: number;
+}
+
+/**
+ * Configuration for quality rating buttons
+ */
+export interface QualityButtonConfig {
+  score: QualityScore;
+  label: string;
+  description: string;
+  color: string; // Tailwind color class
+}
+
+/**
+ * Progress data for visual progress indicators
+ */
+export interface ProgressData {
+  current: number;
+  total: number;
+  percentage: number;
+}
+
 /**
  * Props for the main GeneratedCardsReviewModal component
  */

@@ -176,55 +176,99 @@
     "deleteCardDescription": "Czy na pewno chcesz usunąć tę fiszkę? Tej akcji nie można cofnąć."
   },
   "review": {
-    "title": "Przejrzyj wygenerowane fiszki",
-    "description": "Przejrzyj i wybierz swoje fiszki wygenerowane przez AI",
-    "cardProgress": "{{current}} z {{total}} fiszek",
-    "step": "Krok",
-    "of": "z",
-    "stepIndicator": "Fiszka {{current}} z {{total}}",
-    "status": {
-      "pending": "Oczekujące",
+    "title": "Codzienna powtórka",
+    "session": {
+      "loading": "Ładowanie kolejki powtórek...",
+      "errorTitle": "Nie można załadować powtórek",
+      "errorMessage": "Nie można załadować powtórek",
+      "tryAgain": "Spróbuj ponownie",
+      "emptyState": {
+        "title": "Wszystko w porządku!",
+        "description": "Nie masz obecnie żadnych fiszek do powtórki. Świetna robota, że jesteś na bieżąco z nauką!",
+        "tip": "💡 Wskazówka: Dodaj więcej fiszek lub wygeneruj nowe za pomocą AI, aby kontynuować naukę.",
+        "scheduling": "⏰ Fiszki staną się ponownie dostępne na podstawie Twojej historii powtórek i algorytmu spaced repetition."
+      },
+      "complete": {
+        "title": "Sesja zakończona!",
+        "description": "Przejrzałeś wszystkie {{count}} fiszek w kolejce.",
+        "averageTime": "📊 Średni czas odpowiedzi: {{time}}ms",
+        "rescheduling": "🔄 Fiszki zostaną zaplanowane do przyszłych powtórek na podstawie Twojej wydajności.",
+        "backToDecks": "Powrót do talii"
+      },
+      "exit": {
+        "button": "Wyjdź",
+        "confirmTitle": "Wyjść z sesji powtórek?",
+        "confirmDescription": "Twój postęp zostanie zapisany, ale będziesz musiał rozpocząć nową sesję, aby kontynuować.",
+        "continue": "Kontynuuj powtórki",
+        "exit": "Wyjdź z sesji"
+      },
+      "progress": {
+        "remaining": "~{{time}} pozostało",
+        "complete": "Sesja zakończona! 🎉"
+      },
+      "card": {
+        "reveal": "Naciśnij Spację lub kliknij, aby odkryć odpowiedź",
+        "rate": "Naciśnij 1-6 lub kliknij przyciski, aby ocenić zapamiętanie"
+      },
+      "quality": {
+        "again": "Powtórz",
+        "hard": "Trudne",
+        "good": "Dobrze",
+        "easy": "Łatwe",
+        "perfect": "Perfekcyjnie"
+      }
+    },
+    "generated": {
+      "title": "Przejrzyj wygenerowane fiszki",
+      "description": "Przejrzyj i wybierz swoje fiszki wygenerowane przez AI",
+      "cardProgress": "{{current}} z {{total}} fiszek",
+      "step": "Krok",
+      "of": "z",
+      "stepIndicator": "Fiszka {{current}} z {{total}}",
+      "status": {
+        "pending": "Oczekujące",
+        "accepted": "Zaakceptowane",
+        "edited": "Edytowane",
+        "deleted": "Usunięte"
+      },
+      "cardAccepted": "Fiszka zaakceptowana",
+      "acceptCard": "Zaakceptuj fiszkę",
+      "editCard": "Edytuj fiszkę",
+      "deleteCard": "Usuń fiszkę",
+      "deleteCardTitle": "Usuń fiszkę",
+      "deleteCardDescription": "Czy na pewno chcesz usunąć tę fiszkę? Tej akcji nie można cofnąć.",
+      "acceptAll": "Zaakceptuj wszystkie",
+      "acceptAllTitle": "Zaakceptuj wszystkie fiszki",
+      "acceptAllDescription": "Zaakceptuj wszystkie oczekujące fiszki do dodania do talii.",
+      "deleteAll": "Usuń wszystkie",
+      "deleteAllTitle": "Usuń wszystkie fiszki",
+      "deleteAllDescription": "Usuń wszystkie oczekujące fiszki. Tej akcji nie można cofnąć.",
+      "completeReview": "Zakończ przegląd",
+      "loadingCards": "Ładowanie fiszek...",
+      "noCards": "Nie znaleziono fiszek",
+      "noCardsDescription": "Nie wygenerowano żadnych fiszek. Spróbuj ponownie z inną treścią.",
+      "confirmCloseEditing": "Masz niezapisane zmiany. Czy na pewno chcesz zamknąć?",
+      "clickToFlip": "Kliknij, aby odwrócić",
+      "enterToSave": "Naciśnij Enter, aby zapisać",
+      "previous": "Poprzedni",
+      "previousCard": "Poprzednia fiszka",
+      "next": "Następny",
+      "nextCard": "Następna fiszka",
+      "cardNavigation": "Nawigacja fiszek",
       "accepted": "Zaakceptowane",
-      "edited": "Edytowane",
-      "deleted": "Usunięte"
-    },
-    "cardAccepted": "Fiszka zaakceptowana",
-    "acceptCard": "Zaakceptuj fiszkę",
-    "editCard": "Edytuj fiszkę",
-    "deleteCard": "Usuń fiszkę",
-    "deleteCardTitle": "Usuń fiszkę",
-    "deleteCardDescription": "Czy na pewno chcesz usunąć tę fiszkę? Tej akcji nie można cofnąć.",
-    "acceptAll": "Zaakceptuj wszystkie",
-    "acceptAllTitle": "Zaakceptuj wszystkie fiszki",
-    "acceptAllDescription": "Zaakceptuj wszystkie oczekujące fiszki do dodania do talii.",
-    "deleteAll": "Usuń wszystkie",
-    "deleteAllTitle": "Usuń wszystkie fiszki",
-    "deleteAllDescription": "Usuń wszystkie oczekujące fiszki. Tej akcji nie można cofnąć.",
-    "completeReview": "Zakończ przegląd",
-    "loadingCards": "Ładowanie fiszek...",
-    "noCards": "Nie znaleziono fiszek",
-    "noCardsDescription": "Nie wygenerowano żadnych fiszek. Spróbuj ponownie z inną treścią.",
-    "confirmCloseEditing": "Masz niezapisane zmiany. Czy na pewno chcesz zamknąć?",
-    "clickToFlip": "Kliknij, aby odwrócić",
-    "enterToSave": "Naciśnij Enter, aby zapisać",
-    "previous": "Poprzedni",
-    "previousCard": "Poprzednia fiszka",
-    "next": "Następny",
-    "nextCard": "Następna fiszka",
-    "cardNavigation": "Nawigacja fiszek",
-    "accepted": "Zaakceptowane",
-    "accept": "Zaakceptuj",
-    "deleted": "Usunięte",
-    "progress": "Postęp",
-    "reveal": "Kliknij, aby odkryć",
-    "rating": {
-      "again": "Powtórz",
-      "hard": "Trudne",
-      "good": "Dobrze",
-      "easy": "Łatwe",
-      "perfect": "Perfekcyjnie"
-    },
-    "keyboardHints": "Naciśnij {{space}}, aby odkryć • Naciśnij {{keys}}, aby ocenić"
+      "accept": "Zaakceptuj",
+      "deleted": "Usunięte",
+      "progress": "Postęp",
+      "reveal": "Kliknij, aby odkryć",
+      "rating": {
+        "again": "Powtórz",
+        "hard": "Trudne",
+        "good": "Dobrze",
+        "easy": "Łatwe",
+        "perfect": "Perfekcyjnie"
+      },
+      "keyboardHints": "Naciśnij {{space}}, aby odkryć • Naciśnij {{keys}}, aby ocenić"
+    }
   },
   "profile": {
     "title": "Profil",
@@ -283,9 +327,11 @@
     "backToLogin": "Powrót do logowania"
   },
   "error": {
-    "unexpectedError": "Nieoczekiwany błąd",
-    "somethingWentWrong": "Coś poszło nie tak.",
+    "unexpectedError": "Błąd sesji powtórki",
+    "somethingWentWrong": "Coś poszło nie tak podczas sesji powtórki. Twój postęp został zapisany, ale napotkaliśmy nieoczekiwany błąd.",
     "retry": "Spróbuj ponownie",
+    "reload": "Przeładuj stronę",
+    "errorDetails": "Szczegóły błędu (tryb programisty)",
     "home": "Strona główna",
     "redirecting": "Wystąpił błąd. Przekierowywanie...",
     "retryPageTitle": "Spróbuj ponownie załadować stronę, która spowodowała błąd",

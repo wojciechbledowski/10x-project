@@ -70,8 +70,8 @@ export class ReviewService {
       request.quality
     );
 
-    // Use a database transaction to ensure atomicity of review submission and scheduling update
-    const { data: review, error: transactionError } = await this.supabase
+    // Insert review record
+    const { data: review, error: reviewError } = await this.supabase
       .from("reviews")
       .insert({
         flashcard_id: request.flashcardId,
@@ -82,8 +82,11 @@ export class ReviewService {
       .select("id, created_at")
       .single();
 
-    if (transactionError) {
-      throw new Error("REVIEW_SUBMISSION_FAILED");
+    if (reviewError) {
+      console.error("Review insertion error:", reviewError);
+      throw new Error(
+        `REVIEW_SUBMISSION_FAILED: ${reviewError.message || reviewError.details || "Unknown database error"}`
+      );
     }
 
     // Update the flashcard with new scheduling parameters

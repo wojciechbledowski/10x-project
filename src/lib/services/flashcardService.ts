@@ -472,7 +472,7 @@ export class FlashcardService {
         ease_factor: 2.5,
         interval_days: 1,
         repetition: 0,
-        next_review_at: null,
+        next_review_at: new Date().toISOString(), // Schedule for immediate review
       })
       .select()
       .single();

@@ -2,12 +2,12 @@ import { createContext, useContext, type ReactNode } from "react";
 import type { Language } from "./config";
 import { createTranslator } from "./utils";
 
-interface I18nContextValue {
+export interface I18nContextValue {
   lang: Language;
   t: (key: string, replacements?: Record<string, string | number>) => string;
 }
 
-const I18nContext = createContext<I18nContextValue | null>(null);
+export const I18nContext = createContext<I18nContextValue | null>(null);
 
 interface I18nProviderProps {
   lang: Language;

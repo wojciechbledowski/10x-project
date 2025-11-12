@@ -176,55 +176,99 @@
     "deleteCardDescription": "Are you sure you want to delete this card? This action cannot be undone."
   },
   "review": {
-    "title": "Review Generated Cards",
-    "description": "Review and curate your AI-generated flashcards",
-    "cardProgress": "{{current}} of {{total}} cards",
-    "step": "Step",
-    "of": "of",
-    "stepIndicator": "Card {{current}} of {{total}}",
-    "status": {
-      "pending": "Pending",
+    "title": "Daily Review",
+    "session": {
+      "loading": "Loading review queue...",
+      "errorTitle": "Unable to load reviews",
+      "errorMessage": "Unable to load reviews",
+      "tryAgain": "Try Again",
+      "emptyState": {
+        "title": "All caught up!",
+        "description": "You have no cards due for review right now. Great job staying on top of your learning!",
+        "tip": "💡 Tip: Add more flashcards or generate some with AI to keep learning.",
+        "scheduling": "⏰ Cards will become due again based on your review history and the spaced repetition algorithm."
+      },
+      "complete": {
+        "title": "Session Complete!",
+        "description": "You've reviewed all {{count}} cards in your queue.",
+        "averageTime": "📊 Average response time: {{time}}ms",
+        "rescheduling": "🔄 Cards will be scheduled for future review based on your performance.",
+        "backToDecks": "Back to Decks"
+      },
+      "exit": {
+        "button": "Exit",
+        "confirmTitle": "Exit Review Session?",
+        "confirmDescription": "Your progress will be saved, but you'll need to start a new session to continue reviewing.",
+        "continue": "Continue Reviewing",
+        "exit": "Exit Session"
+      },
+      "progress": {
+        "remaining": "~{{time}} remaining",
+        "complete": "Session complete! 🎉"
+      },
+      "card": {
+        "reveal": "Press Space or click to reveal answer",
+        "rate": "Press 1-6 or click buttons to rate your recall"
+      },
+      "quality": {
+        "again": "Again",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy",
+        "perfect": "Perfect"
+      }
+    },
+    "generated": {
+      "title": "Review Generated Cards",
+      "description": "Review and curate your AI-generated flashcards",
+      "cardProgress": "{{current}} of {{total}} cards",
+      "step": "Step",
+      "of": "of",
+      "stepIndicator": "Card {{current}} of {{total}}",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "edited": "Edited",
+        "deleted": "Deleted"
+      },
+      "cardAccepted": "Card accepted",
+      "acceptCard": "Accept card",
+      "editCard": "Edit card",
+      "deleteCard": "Delete card",
+      "deleteCardTitle": "Delete Card",
+      "deleteCardDescription": "Are you sure you want to delete this card? This action cannot be undone.",
+      "acceptAll": "Accept All",
+      "acceptAllTitle": "Accept All Cards",
+      "acceptAllDescription": "Accept all pending cards for addition to your deck.",
+      "deleteAll": "Delete All",
+      "deleteAllTitle": "Delete All Cards",
+      "deleteAllDescription": "Delete all pending cards. This action cannot be undone.",
+      "completeReview": "Complete Review",
+      "loadingCards": "Loading cards...",
+      "noCards": "No Cards Found",
+      "noCardsDescription": "No cards were generated. Try again with different content.",
+      "confirmCloseEditing": "You have unsaved changes. Are you sure you want to close?",
+      "clickToFlip": "Click to flip",
+      "enterToSave": "Press Enter to save",
+      "previous": "Previous",
+      "previousCard": "Previous card",
+      "next": "Next",
+      "nextCard": "Next card",
+      "cardNavigation": "Card navigation",
       "accepted": "Accepted",
-      "edited": "Edited",
-      "deleted": "Deleted"
-    },
-    "cardAccepted": "Card accepted",
-    "acceptCard": "Accept card",
-    "editCard": "Edit card",
-    "deleteCard": "Delete card",
-    "deleteCardTitle": "Delete Card",
-    "deleteCardDescription": "Are you sure you want to delete this card? This action cannot be undone.",
-    "acceptAll": "Accept All",
-    "acceptAllTitle": "Accept All Cards",
-    "acceptAllDescription": "Accept all pending cards for addition to your deck.",
-    "deleteAll": "Delete All",
-    "deleteAllTitle": "Delete All Cards",
-    "deleteAllDescription": "Delete all pending cards. This action cannot be undone.",
-    "completeReview": "Complete Review",
-    "loadingCards": "Loading cards...",
-    "noCards": "No Cards Found",
-    "noCardsDescription": "No cards were generated. Try again with different content.",
-    "confirmCloseEditing": "You have unsaved changes. Are you sure you want to close?",
-    "clickToFlip": "Click to flip",
-    "enterToSave": "Press Enter to save",
-    "previous": "Previous",
-    "previousCard": "Previous card",
-    "next": "Next",
-    "nextCard": "Next card",
-    "cardNavigation": "Card navigation",
-    "accepted": "Accepted",
-    "accept": "Accept",
-    "deleted": "Deleted",
-    "progress": "Progress",
-    "reveal": "Click to reveal",
-    "rating": {
-      "again": "Again",
-      "hard": "Hard",
-      "good": "Good",
-      "easy": "Easy",
-      "perfect": "Perfect"
-    },
-    "keyboardHints": "Press {{space}} to reveal • Press {{keys}} to rate"
+      "accept": "Accept",
+      "deleted": "Deleted",
+      "progress": "Progress",
+      "reveal": "Click to reveal",
+      "rating": {
+        "again": "Again",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy",
+        "perfect": "Perfect"
+      },
+      "keyboardHints": "Press {{space}} to reveal • Press {{keys}} to rate"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -283,9 +327,11 @@
     "backToLogin": "Back to Login"
   },
   "error": {
-    "unexpectedError": "Unexpected Error",
-    "somethingWentWrong": "Something went wrong.",
-    "retry": "Retry",
+    "unexpectedError": "Review Session Error",
+    "somethingWentWrong": "Something went wrong during your review session. Your progress has been saved, but we encountered an unexpected error.",
+    "retry": "Try Again",
+    "reload": "Reload Page",
+    "errorDetails": "Error Details (Development)",
     "home": "Home",
     "redirecting": "An error occurred. Redirecting...",
     "retryPageTitle": "Retry the page that caused the error",
