@@ -52,10 +52,10 @@ function CardActionsInner({ status, isEditing, onAccept, onEdit, onDelete, isPro
           variant={isAccepted ? "default" : "outline"}
           size="sm"
           className={isAccepted ? "bg-green-600 hover:bg-green-700 text-white" : ""}
-          aria-label={isAccepted ? t("review.cardAccepted") : t("review.acceptCard")}
+          aria-label={isAccepted ? t("review.generated.cardAccepted") : t("review.generated.acceptCard")}
         >
           {isAccepted && <Check className="h-4 w-4 mr-2" />}
-          {isAccepted ? t("review.accepted") : t("review.accept")}
+          {isAccepted ? t("review.generated.accepted") : t("review.generated.accept")}
         </Button>
 
         {/* Edit Button */}
@@ -64,7 +64,7 @@ function CardActionsInner({ status, isEditing, onAccept, onEdit, onDelete, isPro
           disabled={isProcessing || isDeleted}
           variant="outline"
           size="sm"
-          aria-label={t("review.editCard")}
+          aria-label={t("review.generated.editCard")}
         >
           <Edit3 className="h-4 w-4 mr-2" />
           {t("common.edit")}
@@ -81,10 +81,10 @@ function CardActionsInner({ status, isEditing, onAccept, onEdit, onDelete, isPro
               ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
               : "hover:bg-red-50 hover:border-red-200 hover:text-red-700"
           }
-          aria-label={t("review.deleteCard")}
+          aria-label={t("review.generated.deleteCard")}
         >
           <Trash2 className="h-4 w-4 mr-2" />
-          {isDeleted ? t("review.deleted") : t("common.delete")}
+          {isDeleted ? t("review.generated.deleted") : t("common.delete")}
         </Button>
       </div>
 
@@ -92,8 +92,8 @@ function CardActionsInner({ status, isEditing, onAccept, onEdit, onDelete, isPro
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("review.deleteCardTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("review.deleteCardDescription")}</AlertDialogDescription>
+            <AlertDialogTitle>{t("review.generated.deleteCardTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("review.generated.deleteCardDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={cancelDelete} disabled={isProcessing}>

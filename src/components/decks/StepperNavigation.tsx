@@ -75,7 +75,7 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
         onClick={() => handleStepClick(index)}
         className={getStatusClasses(status, isActive)}
         aria-label={`${t("review.step")} ${index + 1} ${t("review.of")} ${totalSteps}`}
-        title={`${t("review.step")} ${index + 1}: ${status}`}
+        title={`${t("review.generated.step")} ${index + 1}: ${status}`}
       />
     );
   });
@@ -85,7 +85,7 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-          <span>{t("review.cardProgress", { current: currentStep + 1, total: totalSteps })}</span>
+          <span>{t("review.generated.cardProgress", { current: currentStep + 1, total: totalSteps })}</span>
           <span>{Math.round(progressPercentage)}%</span>
         </div>
         <div className="w-full bg-muted rounded-full h-2">
@@ -102,7 +102,7 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="tablist"
-        aria-label={t("review.cardNavigation")}
+        aria-label={t("review.generated.cardNavigation")}
       >
         {stepIndicators}
       </div>
@@ -114,35 +114,35 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
           size="sm"
           onClick={handlePrevious}
           disabled={currentStep === 0}
-          className="flex items-center space-x-2"
-          aria-label={t("review.previousCard")}
+          className="flex items-center space-x-2 flex-shrink-0"
+          aria-label={t("review.generated.previousCard")}
         >
           <ChevronLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("review.previous")}</span>
+          <span className="hidden sm:inline">{t("review.generated.previous")}</span>
         </Button>
 
-        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-          <span className="text-center">
-            {t("review.stepIndicator", { current: currentStep + 1, total: totalSteps })}
+        <div className="flex items-center justify-center flex-grow space-x-4 text-sm text-muted-foreground mx-4 overflow-x-auto">
+          <span className="text-center flex-shrink-0">
+            {t("review.generated.stepIndicator", { current: currentStep + 1, total: totalSteps })}
           </span>
 
           {/* Status legend */}
-          <div className="hidden md:flex items-center space-x-4 text-xs">
+          <div className="hidden md:flex flex-col justify-center space-y-1 text-xs flex-shrink-0">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 rounded-full border border-muted bg-background" />
-              <span>{t("review.status.pending")}</span>
+              <span>{t("review.generated.status.pending")}</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 rounded-full border-2 border-green-500 bg-green-500" />
-              <span>{t("review.status.accepted")}</span>
+              <span>{t("review.generated.status.accepted")}</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 rounded-full border-2 border-blue-500 bg-blue-500" />
-              <span>{t("review.status.edited")}</span>
+              <span>{t("review.generated.status.edited")}</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 rounded-full border-2 border-red-500 bg-red-500" />
-              <span>{t("review.status.deleted")}</span>
+              <span>{t("review.generated.status.deleted")}</span>
             </div>
           </div>
         </div>
@@ -152,10 +152,10 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
           size="sm"
           onClick={handleNext}
           disabled={currentStep === totalSteps - 1}
-          className="flex items-center space-x-2"
-          aria-label={t("review.nextCard")}
+          className="flex items-center space-x-2 flex-shrink-0"
+          aria-label={t("review.generated.nextCard")}
         >
-          <span className="hidden sm:inline">{t("review.next")}</span>
+          <span className="hidden sm:inline">{t("review.generated.next")}</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -164,19 +164,19 @@ function StepperNavigationInner({ currentStep, totalSteps, onStepChange, cardSta
       <div className="md:hidden flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center space-x-1">
           <div className="w-2 h-2 rounded-full border border-muted bg-background" />
-          <span>{t("review.status.pending")}</span>
+          <span>{t("review.generated.status.pending")}</span>
         </div>
         <div className="flex items-center space-x-1">
           <div className="w-2 h-2 rounded-full border-2 border-green-500 bg-green-500" />
-          <span>{t("review.status.accepted")}</span>
+          <span>{t("review.generated.status.accepted")}</span>
         </div>
         <div className="flex items-center space-x-1">
           <div className="w-2 h-2 rounded-full border-2 border-blue-500 bg-blue-500" />
-          <span>{t("review.status.edited")}</span>
+          <span>{t("review.generated.status.edited")}</span>
         </div>
         <div className="flex items-center space-x-1">
           <div className="w-2 h-2 rounded-full border-2 border-red-500 bg-red-500" />
-          <span>{t("review.status.deleted")}</span>
+          <span>{t("review.generated.status.deleted")}</span>
         </div>
       </div>
     </div>

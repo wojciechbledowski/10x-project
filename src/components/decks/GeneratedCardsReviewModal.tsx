@@ -89,7 +89,7 @@ function GeneratedCardsReviewModalInner({
   // Handle modal close with confirmation if editing
   const handleClose = useCallback(() => {
     if (isEditing) {
-      const confirmed = window.confirm(t("review.confirmCloseEditing"));
+      const confirmed = window.confirm(t("review.generated.confirmCloseEditing"));
       if (!confirmed) return;
     }
     onClose();
@@ -144,24 +144,19 @@ function GeneratedCardsReviewModalInner({
       }
 
       setValidationErrors(errors);
+
+      setCards((prev) => prev.map((card, index) => (index === currentStep ? { ...card, [side]: content } : card)));
     },
-    [validationErrors, t]
+    [validationErrors, t, currentStep]
   );
 
   // Handle save edited content
   const handleSave = useCallback(async () => {
     if (cards[currentStep]) {
       const currentCard = cards[currentStep];
-      console.log("Editing card:", {
-        id: currentCard.id,
-        source: currentCard.source,
-        status: currentCard.status,
-        isEdited: currentCard.isEdited,
-      });
 
       // If the card was originally "ai" and is now being edited, change source to "ai_edited"
       const newSource = currentCard.source === "ai" ? "ai_edited" : currentCard.source;
-      console.log("New source will be:", newSource);
 
       setCards((prev) =>
         prev.map((card, index) =>
@@ -381,8 +376,8 @@ function GeneratedCardsReviewModalInner({
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("review.noCards")}</DialogTitle>
-            <DialogDescription>{t("review.noCardsDescription")}</DialogDescription>
+            <DialogTitle>{t("review.generated.noCards")}</DialogTitle>
+            <DialogDescription>{t("review.generated.noCardsDescription")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button onClick={handleClose}>{t("common.close")}</Button>
@@ -399,11 +394,11 @@ function GeneratedCardsReviewModalInner({
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <DialogTitle>{t("review.title")}</DialogTitle>
-                <DialogDescription className="text-sm">{t("review.description")}</DialogDescription>
+                <DialogTitle>{t("review.generated.title")}</DialogTitle>
+                <DialogDescription className="text-sm">{t("review.generated.description")}</DialogDescription>
               </div>
               <div className="text-sm font-medium text-muted-foreground whitespace-nowrap ml-4">
-                {t("review.cardProgress", { current: currentStep + 1, total: cards.length })}
+                {t("review.generated.cardProgress", { current: currentStep + 1, total: cards.length })}
               </div>
               <Button
                 variant="ghost"
@@ -471,7 +466,7 @@ function GeneratedCardsReviewModalInner({
                     className="min-w-[100px]"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    {t("review.acceptAll")}
+                    {t("review.generated.acceptAll")}
                   </Button>
                   <Button
                     variant="outline"
@@ -480,7 +475,7 @@ function GeneratedCardsReviewModalInner({
                     className="hover:bg-red-50 hover:border-red-200 hover:text-red-700 min-w-[100px]"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    {t("review.deleteAll")}
+                    {t("review.generated.deleteAll")}
                   </Button>
                 </>
               )}
@@ -493,7 +488,7 @@ function GeneratedCardsReviewModalInner({
               ) : (
                 <CheckCircle className="h-4 w-4 mr-2" />
               )}
-              {t("review.completeReview")}
+              {t("review.generated.completeReview")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -503,13 +498,13 @@ function GeneratedCardsReviewModalInner({
       <AlertDialog open={showAcceptAllDialog} onOpenChange={setShowAcceptAllDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("review.acceptAllTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("review.acceptAllDescription")}</AlertDialogDescription>
+            <AlertDialogTitle>{t("review.generated.acceptAllTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("review.generated.acceptAllDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isProcessing}>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleAcceptAll} disabled={isProcessing}>
-              {isProcessing ? t("common.processing") : t("review.acceptAll")}
+              {isProcessing ? t("common.processing") : t("review.generated.acceptAll")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -519,8 +514,8 @@ function GeneratedCardsReviewModalInner({
       <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("review.deleteAllTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("review.deleteAllDescription")}</AlertDialogDescription>
+            <AlertDialogTitle>{t("review.generated.deleteAllTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("review.generated.deleteAllDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isProcessing}>{t("common.cancel")}</AlertDialogCancel>
@@ -529,7 +524,7 @@ function GeneratedCardsReviewModalInner({
               disabled={isProcessing}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isProcessing ? t("common.deleting") : t("review.deleteAll")}
+              {isProcessing ? t("common.deleting") : t("review.generated.deleteAll")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

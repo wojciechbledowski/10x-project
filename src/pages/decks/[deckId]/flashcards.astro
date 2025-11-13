@@ -4,6 +4,7 @@ import { FlashcardList } from "@/components/decks/FlashcardList";
 
 const { deckId } = Astro.params;
 const lang = Astro.locals.lang;
+
 if (!deckId) {
   throw new Error("Deck ID is required");
 }

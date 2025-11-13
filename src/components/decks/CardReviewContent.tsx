@@ -131,6 +131,15 @@ function CardReviewContentInner({
                       value={tempFront}
                       onChange={(e) => handleContentChange("front", e.target.value)}
                       onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && isEditing) {
+                          e.preventDefault();
+                          handleSave();
+                        }
+                        if (isEditing) {
+                          e.stopPropagation();
+                        }
+                      }}
                       placeholder={t("flashcards.frontPlaceholder")}
                       className={`flex-1 resize-none ${validationErrors?.front ? "border-destructive" : ""}`}
                       maxLength={maxChars}
@@ -189,6 +198,15 @@ function CardReviewContentInner({
                       value={tempBack}
                       onChange={(e) => handleContentChange("back", e.target.value)}
                       onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && isEditing) {
+                          e.preventDefault();
+                          handleSave();
+                        }
+                        if (isEditing) {
+                          e.stopPropagation();
+                        }
+                      }}
                       placeholder={t("flashcards.backPlaceholder")}
                       className={`flex-1 resize-none ${validationErrors?.back ? "border-destructive" : ""}`}
                       maxLength={maxChars}
@@ -240,8 +258,8 @@ function CardReviewContentInner({
 
       {/* Instructions */}
       <div className="text-center text-sm text-muted-foreground">
-        <p>{t("review.clickToFlip")}</p>
-        {isEditing && <p>{t("review.enterToSave")}</p>}
+        <p>{t("review.generated.clickToFlip")}</p>
+        {isEditing && <p>{t("review.generated.enterToSave")}</p>}
       </div>
     </div>
   );

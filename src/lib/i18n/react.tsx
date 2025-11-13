@@ -19,12 +19,14 @@ interface I18nProviderProps {
  * Provides language and translation function to all children
  */
 export function I18nProvider({ lang, children }: I18nProviderProps) {
-  const value: I18nContextValue = {
+  const t = createTranslator(lang);
+
+  const contextValue = {
     lang,
-    t: createTranslator(lang),
+    t,
   };
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return <I18nContext.Provider value={contextValue}>{children}</I18nContext.Provider>;
 }
 
 /**
