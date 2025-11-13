@@ -1,8 +1,11 @@
-import { useState, useCallback, useId, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n, I18nProvider } from "@/lib/i18n/react";
 import { registerSchema } from "@/lib/auth/schemas";
 import { toast } from "sonner";
+import { TextField } from "./TextField";
+import { PasswordField } from "./PasswordField";
+import { RegistrationSuccess } from "./RegistrationSuccess";
 import type { Language } from "@/lib/i18n/config";
 
 interface RegisterFormProps {
@@ -19,14 +22,6 @@ interface RegisterFormWrapperProps extends RegisterFormProps {
  */
 function RegisterFormInner({ onSubmit }: RegisterFormProps) {
   const { t } = useI18n();
-  const nameId = useId();
-  const emailId = useId();
-  const passwordId = useId();
-  const confirmPasswordId = useId();
-  const nameErrorId = useId();
-  const emailErrorId = useId();
-  const passwordErrorId = useId();
-  const confirmPasswordErrorId = useId();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -116,150 +111,53 @@ function RegisterFormInner({ onSubmit }: RegisterFormProps) {
 
   // Show success message after registration
   if (isSuccess) {
-    return (
-      <div className="space-y-6 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-          <svg
-            className="h-6 w-6 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-medium text-foreground">{t("auth.success.registrationComplete")}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{t("auth.success.checkEmail")}</p>
-        </div>
-
-        <div className="space-y-4">
-          <Button asChild className="w-full">
-            <a href="/auth/login">{t("auth.goToLogin")}</a>
-          </Button>
-
-          <p className="text-xs text-muted-foreground">
-            {t("auth.didntReceiveEmail")}{" "}
-            <button
-              type="button"
-              className="text-primary hover:underline"
-              onClick={() => {
-                setIsSuccess(false);
-                // Optionally clear form or keep email for resubmission
-              }}
-            >
-              {t("auth.tryAgain")}
-            </button>
-          </p>
-        </div>
-      </div>
-    );
+    return <RegistrationSuccess onTryAgain={() => setIsSuccess(false)} />;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor={nameId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("auth.fullName")}
-        </label>
-        <input
-          type="text"
-          id={nameId}
-          name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.name ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder="John Doe"
-          disabled={isLoading}
-          aria-invalid={errors.name ? "true" : "false"}
-          aria-describedby={errors.name ? nameErrorId : undefined}
-        />
-        {errors.name && (
-          <p id={nameErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.name}
-          </p>
-        )}
-      </div>
+      <TextField
+        label={t("auth.fullName")}
+        name="name"
+        type="text"
+        value={name}
+        onChange={setName}
+        error={errors.name}
+        placeholder="John Doe"
+        disabled={isLoading}
+      />
 
-      <div>
-        <label htmlFor={emailId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("auth.email")}
-        </label>
-        <input
-          type="email"
-          id={emailId}
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.email ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.emailPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.email ? "true" : "false"}
-          aria-describedby={errors.email ? emailErrorId : undefined}
-        />
-        {errors.email && (
-          <p id={emailErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.email}
-          </p>
-        )}
-      </div>
+      <TextField
+        label={t("auth.email")}
+        name="email"
+        type="email"
+        value={email}
+        onChange={setEmail}
+        error={errors.email}
+        placeholder={t("auth.emailPlaceholder")}
+        disabled={isLoading}
+      />
 
-      <div>
-        <label htmlFor={passwordId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("auth.password")}
-        </label>
-        <input
-          type="password"
-          id={passwordId}
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.password ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.passwordPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.password ? "true" : "false"}
-          aria-describedby={errors.password ? passwordErrorId : undefined}
-        />
-        <p className="mt-1 text-xs text-muted-foreground">{t("auth.passwordRequirement")}</p>
-        {errors.password && (
-          <p id={passwordErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.password}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        label={t("auth.password")}
+        name="password"
+        value={password}
+        onChange={setPassword}
+        error={errors.password}
+        placeholder={t("auth.passwordPlaceholder")}
+        disabled={isLoading}
+        helperText={t("auth.passwordRequirement")}
+      />
 
-      <div>
-        <label htmlFor={confirmPasswordId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("auth.confirmPassword")}
-        </label>
-        <input
-          type="password"
-          id={confirmPasswordId}
-          name="confirm-password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.confirmPassword ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.passwordPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.confirmPassword ? "true" : "false"}
-          aria-describedby={errors.confirmPassword ? confirmPasswordErrorId : undefined}
-        />
-        {errors.confirmPassword && (
-          <p id={confirmPasswordErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.confirmPassword}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        label={t("auth.confirmPassword")}
+        name="confirm-password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        error={errors.confirmPassword}
+        placeholder={t("auth.passwordPlaceholder")}
+        disabled={isLoading}
+      />
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? t("auth.signingUp") : t("auth.createAccount")}

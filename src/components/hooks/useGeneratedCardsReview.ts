@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import type { GenerationBatchResponse, ReviewCardVM, CardStatus, FlashcardResponse } from "@/types";
+import { useState, useCallback } from "react";
+import type { GenerationBatchResponse, ReviewCardVM, CardStatus, CreateFlashcardRequest } from "@/types";
+import { generationBatchService } from "@/lib/services/generationBatchService";
+import { batchToReviewCards } from "@/lib/flashcards/transformers";
+import { usePolling } from "./usePolling";
 
 interface UseGeneratedCardsReviewResult {
   batch: GenerationBatchResponse | null;
@@ -29,158 +32,63 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pollingBatchId, setPollingBatchId] = useState<string | null>(null);
 
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // Handle batch updates from polling
+  const handleBatchUpdate = useCallback((data: GenerationBatchResponse) => {
+    setBatch(data);
 
-  // Convert API response to ReviewCardVM format
-  const convertToReviewCardVM = useCallback(
-    (flashcard: FlashcardResponse): ReviewCardVM => ({
-      id: flashcard.id,
-      front: flashcard.front,
-      back: flashcard.back,
-      source: flashcard.source,
-      status: "pending" as CardStatus,
-      isEdited: false,
-      originalFront: flashcard.front,
-      originalBack: flashcard.back,
-    }),
-    []
+    if (data.status === "COMPLETED") {
+      const reviewCards = batchToReviewCards(data);
+      setCards(reviewCards);
+    } else if (data.status === "FAILED") {
+      setError("Generation batch failed");
+    }
+  }, []);
+
+  // Setup polling for batch updates
+  const { stopPolling } = usePolling<GenerationBatchResponse>(
+    pollingBatchId ? `/api/generation-batches/${pollingBatchId}` : "",
+    {
+      interval: POLLING_INTERVAL,
+      enabled: !!pollingBatchId,
+      onSuccess: handleBatchUpdate,
+      onError: (err) => setError(err.message),
+      shouldStopPolling: (data) => data.status === "COMPLETED" || data.status === "FAILED",
+    }
   );
 
-  // Convert batch response to cards array
-  const convertBatchToCards = useCallback(
-    (batchResponse: GenerationBatchResponse): ReviewCardVM[] => {
-      const allFlashcards: { front: string; back: string; id: string }[] = [];
-
-      // Collect all flashcards from all generations in the batch
-      batchResponse.generations.forEach((generation) => {
-        if (generation.generatedData?.flashcards) {
-          // Add generated data flashcards with temporary IDs
-          generation.generatedData.flashcards.forEach((card: { front: string; back: string }, index: number) => {
-            allFlashcards.push({
-              id: `temp-${generation.id}-${index}`,
-              front: card.front,
-              back: card.back,
-            });
-          });
-        }
-      });
-
-      return allFlashcards.map((card) =>
-        convertToReviewCardVM({
-          id: card.id,
-          front: card.front,
-          back: card.back,
-          source: "ai",
-          deckId: null,
-          easeFactor: 2.5,
-          intervalDays: 1,
-          repetition: 0,
-          nextReviewAt: null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          userId: "",
-          deletedAt: null,
-        })
-      );
-    },
-    [convertToReviewCardVM]
-  );
-
-  // Start polling for batch updates
-  const startPolling = useCallback(
-    (batchId: string) => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-
-      pollingIntervalRef.current = setInterval(async () => {
-        try {
-          const response = await fetch(`/api/generation-batches/${batchId}`, {
-            signal: abortControllerRef.current?.signal,
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const data: GenerationBatchResponse = await response.json();
-
-          // Update batch state
-          setBatch(data);
-
-          // If batch is completed, convert to cards and stop polling
-          if (data.status === "COMPLETED" || data.status === "FAILED") {
-            if (data.status === "COMPLETED") {
-              const reviewCards = convertBatchToCards(data);
-              setCards(reviewCards);
-            } else {
-              setError("Generation batch failed");
-            }
-
-            if (pollingIntervalRef.current) {
-              clearInterval(pollingIntervalRef.current);
-              pollingIntervalRef.current = null;
-            }
-          }
-        } catch (err) {
-          // Only set error if it's not an abort error (component unmounting)
-          if (!(err instanceof Error) || err.name !== "AbortError") {
-            setError(err instanceof Error ? err.message : "Failed to poll batch status");
-          }
-        }
-      }, POLLING_INTERVAL);
-    },
-    [convertBatchToCards]
-  );
-
-  // Load generation batch and start polling
+  // Load generation batch and start polling if needed
   const loadBatch = useCallback(
     async (batchId: string) => {
       setIsLoading(true);
       setError(null);
 
-      // Cancel any existing polling
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-
-      // Create new abort controller for this request
-      abortControllerRef.current = new AbortController();
+      // Stop any existing polling
+      stopPolling();
+      setPollingBatchId(null);
 
       try {
-        const response = await fetch(`/api/generation-batches/${batchId}`, {
-          signal: abortControllerRef.current.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data: GenerationBatchResponse = await response.json();
+        const data = await generationBatchService.fetchBatch(batchId);
         setBatch(data);
 
         // If batch is already completed, convert to cards immediately
         if (data.status === "COMPLETED") {
-          const reviewCards = convertBatchToCards(data);
+          const reviewCards = batchToReviewCards(data);
           setCards(reviewCards);
         } else if (data.status === "FAILED") {
           setError("Generation batch failed");
         } else {
           // Start polling for updates
-          startPolling(batchId);
+          setPollingBatchId(batchId);
         }
       } catch (err) {
-        if (!(err instanceof Error) || err.name !== "AbortError") {
-          setError(err instanceof Error ? err.message : "Failed to load batch");
-        }
+        setError(err instanceof Error ? err.message : "Failed to load batch");
       } finally {
         setIsLoading(false);
       }
     },
-    [convertBatchToCards, startPolling]
+    [stopPolling]
   );
 
   // Accept a card (mark as accepted)
@@ -275,43 +183,31 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
       // Filter accepted and edited cards
       const cardsToSave = cards.filter((card) => card.status === "accepted" || card.status === "edited");
 
-      // Save accepted/edited cards to database
-      const savedCards: ReviewCardVM[] = [];
-      for (const card of cardsToSave) {
-        const createRequest = {
-          front: card.front,
-          back: card.back,
-          deckId: batch?.generations[0]?.deckId || undefined,
-          source: card.status === "edited" ? "ai_edited" : "ai",
-        };
+      // Prepare cards for saving
+      const flashcardsToCreate: CreateFlashcardRequest[] = cardsToSave.map((card) => ({
+        front: card.front,
+        back: card.back,
+        deckId: batch?.generations[0]?.deckId || undefined,
+        source: card.status === "edited" ? ("ai_edited" as const) : ("ai" as const),
+      }));
 
-        const response = await fetch("/api/flashcards", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createRequest),
-        });
+      // Save all cards using the service
+      const savedFlashcards = await generationBatchService.saveFlashcardsBulk(flashcardsToCreate);
 
-        if (!response.ok) {
-          throw new Error(`Failed to save card: HTTP ${response.status}`);
-        }
-
-        const savedCard: FlashcardResponse = await response.json();
-        const reviewCard: ReviewCardVM = {
-          ...card,
-          ...savedCard,
-          status: card.status,
-          isEdited: card.isEdited,
-        };
-        savedCards.push(reviewCard);
-      }
+      // Convert saved flashcards to ReviewCardVM
+      const savedCards: ReviewCardVM[] = savedFlashcards.map((savedCard, index) => ({
+        ...cardsToSave[index],
+        ...savedCard,
+        status: cardsToSave[index].status,
+        isEdited: cardsToSave[index].isEdited,
+      }));
 
       // Reset state
       setBatch(null);
       setCards([]);
       setCurrentStep(0);
       setError(null);
+      setPollingBatchId(null);
 
       // Return the saved cards
       return savedCards;
@@ -322,18 +218,6 @@ export function useGeneratedCardsReview(): UseGeneratedCardsReviewResult {
       setIsProcessing(false);
     }
   }, [cards, batch]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return {
     batch,

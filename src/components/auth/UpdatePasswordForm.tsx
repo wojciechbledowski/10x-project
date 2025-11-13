@@ -1,8 +1,9 @@
-import { useState, useCallback, useId, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n, I18nProvider } from "@/lib/i18n/react";
 import { updatePasswordSchema } from "@/lib/auth/schemas";
 import { toast } from "sonner";
+import { PasswordField } from "./PasswordField";
 import type { Language } from "@/lib/i18n/config";
 
 interface UpdatePasswordFormProps {
@@ -19,12 +20,6 @@ interface UpdatePasswordFormWrapperProps extends UpdatePasswordFormProps {
  */
 function UpdatePasswordFormInner({ onSubmit }: UpdatePasswordFormProps) {
   const { t } = useI18n();
-  const currentPasswordId = useId();
-  const newPasswordId = useId();
-  const confirmPasswordId = useId();
-  const currentPasswordErrorId = useId();
-  const newPasswordErrorId = useId();
-  const confirmPasswordErrorId = useId();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -117,80 +112,35 @@ function UpdatePasswordFormInner({ onSubmit }: UpdatePasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor={currentPasswordId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("profile.currentPassword")}
-        </label>
-        <input
-          type="password"
-          id={currentPasswordId}
-          name="currentPassword"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.currentPassword ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.passwordPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.currentPassword ? "true" : "false"}
-          aria-describedby={errors.currentPassword ? currentPasswordErrorId : undefined}
-        />
-        {errors.currentPassword && (
-          <p id={currentPasswordErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.currentPassword}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        label={t("profile.currentPassword")}
+        name="currentPassword"
+        value={currentPassword}
+        onChange={setCurrentPassword}
+        error={errors.currentPassword}
+        placeholder={t("auth.passwordPlaceholder")}
+        disabled={isLoading}
+      />
 
-      <div>
-        <label htmlFor={newPasswordId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("profile.newPassword")}
-        </label>
-        <input
-          type="password"
-          id={newPasswordId}
-          name="newPassword"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.newPassword ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.passwordPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.newPassword ? "true" : "false"}
-          aria-describedby={errors.newPassword ? newPasswordErrorId : undefined}
-        />
-        {errors.newPassword && (
-          <p id={newPasswordErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.newPassword}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        label={t("profile.newPassword")}
+        name="newPassword"
+        value={newPassword}
+        onChange={setNewPassword}
+        error={errors.newPassword}
+        placeholder={t("auth.passwordPlaceholder")}
+        disabled={isLoading}
+      />
 
-      <div>
-        <label htmlFor={confirmPasswordId} className="mb-2 block text-sm font-medium text-foreground">
-          {t("profile.confirmNewPassword")}
-        </label>
-        <input
-          type="password"
-          id={confirmPasswordId}
-          name="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className={`w-full rounded-md border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-            errors.confirmPassword ? "border-destructive" : "border-input bg-background"
-          }`}
-          placeholder={t("auth.passwordPlaceholder")}
-          disabled={isLoading}
-          aria-invalid={errors.confirmPassword ? "true" : "false"}
-          aria-describedby={errors.confirmPassword ? confirmPasswordErrorId : undefined}
-        />
-        {errors.confirmPassword && (
-          <p id={confirmPasswordErrorId} className="mt-1 text-xs text-destructive" role="alert">
-            {errors.confirmPassword}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        label={t("profile.confirmNewPassword")}
+        name="confirmPassword"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        error={errors.confirmPassword}
+        placeholder={t("auth.passwordPlaceholder")}
+        disabled={isLoading}
+      />
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? t("profile.updatingPassword") : t("profile.updatePassword")}

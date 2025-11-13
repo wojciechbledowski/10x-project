@@ -6,6 +6,8 @@ import type {
   ReviewSessionVM,
   QualityScore,
 } from "../../types";
+import { reviewApi } from "@/lib/api/reviewApiClient";
+import { errorLogger } from "@/lib/services/errorLogger";
 
 /**
  * Hook for managing review session state and operations
@@ -31,42 +33,14 @@ export function useReviewSession() {
   const reviewStartTimeRef = useRef<number | null>(null);
 
   /**
-   * Load the review queue from API with retry logic
+   * Load the review queue from API
    */
-  const loadQueue = useCallback(async (retryCount = 0): Promise<void> => {
-    const maxRetries = 3;
-    const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-
+  const loadQueue = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/api/reviews/queue", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Authentication required. Please sign in again.");
-        }
-        if (response.status === 429) {
-          throw new Error("Too many requests. Please wait a moment and try again.");
-        }
-        if (response.status >= 500 && retryCount < maxRetries) {
-          // Server error - retry with backoff
-          console.warn(`Review queue load failed (attempt ${retryCount + 1}), retrying in ${retryDelay}ms`);
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
-          return loadQueue(retryCount + 1);
-        }
-
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Failed to load review queue (HTTP ${response.status})`);
-      }
-
-      const data: ReviewQueueResponse = await response.json();
+      const data = await reviewApi.loadQueue();
 
       // Handle empty queue
       if (data.totalDue === 0) {
@@ -111,20 +85,7 @@ export function useReviewSession() {
       reviewStartTimeRef.current = Date.now();
     } catch (err) {
       const error = err as Error;
-      console.error("Failed to load review queue:", error);
-
-      // Log client error for monitoring
-      try {
-        const { logClientError } = await import("../../lib/logClientError");
-        await logClientError({
-          path: "/review",
-          message: error.message,
-          stack: error.stack,
-          userAgent: navigator.userAgent,
-        });
-      } catch (logError) {
-        console.error("Failed to log error:", logError);
-      }
+      errorLogger.logError(error, "/review");
 
       const errorMessage = error.message || "Failed to load review queue";
       setError(errorMessage);
@@ -139,7 +100,7 @@ export function useReviewSession() {
    * Submit a quality review and advance to next card
    */
   const submitReview = useCallback(
-    async (quality: QualityScore, retryCount = 0): Promise<void> => {
+    async (quality: QualityScore): Promise<void> => {
       if (!currentCard || !queue) {
         throw new Error("No current card to review");
       }
@@ -157,35 +118,7 @@ export function useReviewSession() {
           latencyMs,
         };
 
-        const response = await fetch("/api/reviews", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(request),
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error("Authentication expired. Please sign in again.");
-          }
-          if (response.status === 404) {
-            throw new Error("Card not found. It may have been deleted.");
-          }
-          if (response.status === 429) {
-            throw new Error("Too many reviews submitted. Please wait a moment.");
-          }
-          if (response.status >= 500 && retryCount < 2) {
-            // Server error - retry with exponential backoff
-            const retryDelay = Math.pow(2, retryCount) * 1000;
-            console.warn(`Review submission failed (attempt ${retryCount + 1}), retrying in ${retryDelay}ms`);
-            await new Promise((resolve) => setTimeout(resolve, retryDelay));
-            return submitReview(quality, retryCount + 1);
-          }
-
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error?.message || `Failed to submit review (HTTP ${response.status})`);
-        }
+        await reviewApi.submitReview(request);
 
         // Update session progress
         const newCompletedCards = sessionProgress.completedCards + 1;
@@ -234,20 +167,7 @@ export function useReviewSession() {
         reviewStartTimeRef.current = Date.now();
       } catch (err) {
         const error = err as Error;
-        console.error("Failed to submit review:", error);
-
-        // Log client error for monitoring
-        try {
-          const { logClientError } = await import("../../lib/logClientError");
-          await logClientError({
-            path: "/review",
-            message: error.message,
-            stack: error.stack,
-            userAgent: navigator.userAgent,
-          });
-        } catch (logError) {
-          console.error("Failed to log error:", logError);
-        }
+        errorLogger.logError(error, "/review");
 
         const errorMessage = error.message || "Failed to submit review";
         setError(errorMessage);
